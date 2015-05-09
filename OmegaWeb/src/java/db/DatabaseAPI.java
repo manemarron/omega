@@ -6,6 +6,7 @@
 package db;
 
 import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -23,15 +24,13 @@ public class DatabaseAPI {
     
     private Connection connection;
     private final boolean DEBUG = false;
-    private static final String DB_PATH = System.getProperty("user.dir") + "/db/";
+    private static String DB_PATH;
     
     public DatabaseAPI(){
-        
+        DB_PATH = this.currentDBPath();
     }
     
     public static void main(String args[]){
-        
-        System.out.println("Databases location: "+DB_PATH); 
         
         String[] names = {"COL1","COL2","COL3"};
         String[] types = {"INT","VARCHAR(20)","INT"};
@@ -42,6 +41,9 @@ public class DatabaseAPI {
         String[] delValues = {"ADIOS","33"};
         
         DatabaseAPI api = new DatabaseAPI();
+        
+        System.out.println("Databases location: "+DB_PATH);      
+        
         //api.createDatabase("DB_NAME", "root", "admin");
         //api.openConnection("DB_NAME", "root", "admin");
         //api.createTable("T1",names,types,nulls,pk);
@@ -60,7 +62,7 @@ public class DatabaseAPI {
      * @return : True if successfull, False otherwise
      */
     public boolean createDatabase(String dbName, String user, String pw){
-        System.out.println("STRING: " + "jdbc:derby:"+DB_PATH+dbName+";create=true"); 
+        System.out.println("\n\n***\nSTRING: " + "jdbc:derby:"+DB_PATH+dbName+";create=true\n***\n\n"); 
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             connection = DriverManager.getConnection(
@@ -317,6 +319,28 @@ public class DatabaseAPI {
             if(DEBUG) Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
+    }
+    
+    private String currentDBPath(){       
+        
+        URL location = this.getClass().getProtectionDomain().getCodeSource()
+            .getLocation();
+        String path = location.getFile();
+
+        String[] pathSegments = path.split("/");
+        StringBuilder cleanPath = new StringBuilder("");
+        
+        for(String directory : pathSegments){
+            if(!directory.equals("build")){
+                cleanPath.append(directory).append("/");
+            }
+            else{
+                cleanPath.append("db").append("/");
+                break;
+            }
+        }
+
+        return cleanPath.toString();    
     }
     
 }
