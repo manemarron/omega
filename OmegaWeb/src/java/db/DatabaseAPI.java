@@ -292,15 +292,15 @@ public class DatabaseAPI {
 
         for (int i = 0; i < values.length; i++) {
 
-            try { // If column has a decimal value
-                double valueFloat = Double.parseDouble(values[i]);
-                cad.append(columnNames[i]).append(" = ").append(valueFloat).append("");
+            try { // If column has an integer value
+                int valueInt = Integer.parseInt(values[i]);
+                cad.append(columnNames[i]).append(" = ").append(valueInt).append("");
             }
             catch (Exception e1) {
 
-                try { // If column has an integer value
-                    int valueInt = Integer.parseInt(values[i]);
-                    cad.append(columnNames[i]).append(" = ").append(valueInt).append("");
+                try { // If column has a decimal value
+                    double valueFloat = Double.parseDouble(values[i]);
+                    cad.append(columnNames[i]).append(" = ").append(valueFloat).append("");
                 }
                 catch (Exception e2) { // Column is not a number
                     cad.append(columnNames[i]).append(" = '").append(values[i]).append("'");
@@ -348,15 +348,15 @@ public class DatabaseAPI {
 
         for (int i = 0; i < values.length; i++) {
 
-            try { // If column has a decimal value
-                double valueFloat = Double.parseDouble(values[i]);
-                cad.append(whereColumnNames[i]).append(" = ").append(valueFloat).append("");
+            try { // If column has an integer value
+                int valueInt = Integer.parseInt(values[i]);
+                cad.append(whereColumnNames[i]).append(" = ").append(valueInt).append("");
             }
             catch (Exception e1) {
 
-                try { // If column has an integer value
-                    int valueInt = Integer.parseInt(values[i]);
-                    cad.append(whereColumnNames[i]).append(" = ").append(valueInt).append("");
+                try { // If column has a decimal value
+                    double valueFloat = Double.parseDouble(values[i]);
+                    cad.append(whereColumnNames[i]).append(" = ").append(valueFloat).append("");
                 }
                 catch (Exception e2) { // Column is not a number
                     cad.append(whereColumnNames[i]).append(" = '").append(values[i]).append("'");
