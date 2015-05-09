@@ -40,7 +40,7 @@ public class SessionServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        if (request.getRequestURI().equals("/DataWebWizard/logout")) {
+        if (request.getRequestURI().equals("/OmegaWeb/logout")) {
             HttpSession session = request.getSession();
             session.invalidate();
             response.sendRedirect(request.getContextPath() + "/login");
@@ -62,10 +62,10 @@ public class SessionServlet extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             if (null != request.getRequestURI()) {
                 switch (request.getRequestURI()) {
-                    case "/DataWebWizard/login_control":
+                    case "/OmegaWeb/login_control":
                         out.print(login(request));
                         break;
-                    case "/DataWebWizard/register_control":
+                    case "/OmegaWeb/register_control":
                         out.print(register(request));
                         break;
                 }
