@@ -5,8 +5,6 @@
  */
 package db_ws;
 
-
-
 import db_ws_client.DatabaseWS;
 import db_ws_client.DatabaseWS_Service;
 
@@ -26,21 +24,22 @@ import javax.ws.rs.QueryParam;
  */
 @Path("db/api")
 public class DatabaseWSClient {
-    
+
 //    @Context
 //    private UriInfo context;
-    
-    public DatabaseWSClient(){
-        
+    public DatabaseWSClient() {
+
     }
-    
+
     @GET
     @Produces("text/plain")
     @Path("createDatabase")
-    public String createDatabase(@QueryParam("dbName") String dbName, @QueryParam("user") String user, @QueryParam("pw") String pw) {
+    public String createDatabase(@QueryParam("dbName") String dbName,
+                                 @QueryParam("user") String user,
+                                 @QueryParam("pw") String pw) {
         DatabaseWS_Service service = new DatabaseWS_Service();
         DatabaseWS port = service.getDatabaseWSPort();
         return "" + port.createDatabase(dbName, user, pw);
     }
-    
+
 }
