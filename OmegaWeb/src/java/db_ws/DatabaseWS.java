@@ -12,14 +12,16 @@ import javax.jws.WebParam;
 
 /**
  *
- * @author manemarron
+ * @author andermurillo
  */
 @WebService(serviceName = "DatabaseWS")
 public class DatabaseWS {
 
     @WebMethod(operationName = "createDatabase")
-    public boolean createDatabase(@WebParam(name="dbName") String dbName, @WebParam(name="user") String user, @WebParam(name="pw") String pw) {
-        DatabaseAPI dbApi = new DatabaseAPI();
+    public boolean createDatabase(@WebParam(name = "dbName") String dbName,
+            @WebParam(name = "user") String user,
+            @WebParam(name = "pw") String pw) {
+        DatabaseAPI dbApi = new DatabaseAPI(); 
         return dbApi.createDatabase(dbName, user, pw);
     }
 }

@@ -42,7 +42,7 @@ public class DatabaseAPI {
         String[] delValues = {"ADIOS","33"};
         
         DatabaseAPI api = new DatabaseAPI();
-        api.createDatabase("DB_NAME", "root", "admin");
+        //api.createDatabase("DB_NAME", "root", "admin");
         //api.openConnection("DB_NAME", "root", "admin");
         //api.createTable("T1",names,types,nulls,pk);
         //api.deleteTable("T1");
@@ -60,6 +60,7 @@ public class DatabaseAPI {
      * @return : True if successfull, False otherwise
      */
     public boolean createDatabase(String dbName, String user, String pw){
+        System.out.println("STRING: " + "jdbc:derby:"+DB_PATH+dbName+";create=true"); 
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             connection = DriverManager.getConnection(
