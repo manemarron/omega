@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLNonTransientConnectionException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,7 +36,7 @@ public class DatabaseAPI {
     public static void main(String args[]) {
 
         String[] names = {"COL1", "COL2", "COL3"};
-        String[] snames = {"COL1","COL3"};
+        String[] snames = {"COL1", "COL3"};
         String[] wnames = {"COL3"};
         String[] types = {"INT", "VARCHAR(20)", "INT"};
         String[] nulls = {"NOT NULL", "", "NOT NULL"};
@@ -55,7 +56,7 @@ public class DatabaseAPI {
         System.out.println("CREATE TABLE: " + api.createTable("T1", names, types, nulls, pk));
         System.out.println("ADD ROW: " + api.addRow("T1", values));
         System.out.println("ADD ROW: " + api.addRow("T1", values2));
-        System.out.println("SELECT: " + api.select("T1", snames, wnames, svalues)); 
+        System.out.println("SELECT: " + api.select("T1", snames, wnames, svalues));
         System.out.println("DELETE ROW: " + api.deleteRow("T1", delCols, delValues));
         System.out.println("DELETE TABLE: " + api.deleteTable("T1"));
         System.out.println("CLOSE CONNECTION: " + api.closeConnection("DB_NAME", "root", "admin"));
@@ -87,19 +88,26 @@ public class DatabaseAPI {
         }
     }
 
+    /**
+     * Deletes an existing database
+     *
+     * @param dbName : The name of the database
+     * @param user : Username of the database
+     * @param pw : Password for that user
+     * @return : True if deletion was successfull, False otherwise
+     */
     public boolean deleteDatabase(String dbName, String user, String pw) {
         try {
-            //There is no drop database command. To drop a database, delete the database
-            //directory with operating system commands. The database must not be booted
-            //when you remove a database.
-            this.closeConnection(dbName, user, pw);
+            if (!connection.isClosed()) {
+                this.closeConnection(dbName, user, pw);
+            }
             Runtime r = Runtime.getRuntime();
             Process p = r.exec("rm -r " + DB_PATH + dbName);
             return true;
         }
-        catch (IOException ex) {
+        catch (IOException | SQLException ex) {
             if (DEBUG) {
-               Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
             return false;
         }
@@ -148,7 +156,12 @@ public class DatabaseAPI {
             return true;
         }
         catch (ClassNotFoundException | SQLException ex) {
-            if (DEBUG) {
+
+            if (ex.getClass().equals(SQLNonTransientConnectionException.class)) {
+                System.out.println("Successfull shutdown");
+                return true;
+            }
+            else if (DEBUG) {
                 Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
             return false;
@@ -167,7 +180,7 @@ public class DatabaseAPI {
      * @return : True if successfull, False otherwise
      */
     public boolean createTable(String tableName, String[] columnNames,
-                               String[] columnTypes, String[] nulls, 
+                               String[] columnTypes, String[] nulls,
                                String[] pk) {
 
         StringBuilder cad = new StringBuilder();
@@ -324,14 +337,14 @@ public class DatabaseAPI {
      * @param values : Values of the columns being compared
      * @return : 2-D ArrayList with results, null if exception
      */
-    public ArrayList<ArrayList<String>> select(String tableName, 
+    public ArrayList<ArrayList<String>> select(String tableName,
                                                String[] selectColumnNames,
                                                String[] whereColumnNames,
                                                String[] values) {
 
         StringBuilder cad = new StringBuilder();
-        cad.append("SELECT ").append(join(selectColumnNames)).append(" FROM ").
-                              append(tableName).append(" WHERE ");
+        cad.append("SELECT ").append(join(selectColumnNames, ",")).append(" FROM ").
+                append(tableName).append(" WHERE ");
 
         for (int i = 0; i < values.length; i++) {
 
@@ -360,14 +373,14 @@ public class DatabaseAPI {
         try {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(createString);
-            
+
             ResultSetMetaData rsmd = rs.getMetaData();
             int columnsNumber = rsmd.getColumnCount();
-            
+
             ArrayList<ArrayList<String>> results = new ArrayList();
-            while(rs.next()) {
+            while (rs.next()) {
                 ArrayList<String> row = new ArrayList();
-                for(int i=1;i<=columnsNumber;i++){
+                for (int i = 1; i <= columnsNumber; i++) {
                     row.add(rs.getString(i)); // Index starts at 1
                 }
                 results.add(row);
@@ -403,13 +416,13 @@ public class DatabaseAPI {
 
         return cleanPath.toString();
     }
-    
-    private static String join(String[] array){
+
+    private String join(String[] array, String sep) {
         StringBuilder cad = new StringBuilder();
-        for(int i=0;i<array.length-1;i++){
-            cad.append(array[i]).append(",");
+        for (int i = 0; i < array.length - 1; i++) {
+            cad.append(array[i]).append(sep);
         }
-        cad.append(array[array.length-1]);
+        cad.append(array[array.length - 1]);
         return cad.toString();
     }
 
