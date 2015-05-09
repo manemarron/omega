@@ -13,17 +13,19 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
+import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  *
- * @author andemurillo
+ * @author andermurillo
  */
 public class DatabaseAPI {
 
     private Connection connection;
-    private final boolean DEBUG = false;
+    private final boolean DEBUG = true;
     private static String DB_PATH;
 
     public DatabaseAPI() {
@@ -33,10 +35,14 @@ public class DatabaseAPI {
     public static void main(String args[]) {
 
         String[] names = {"COL1", "COL2", "COL3"};
+        String[] snames = {"COL1","COL3"};
+        String[] wnames = {"COL3"};
         String[] types = {"INT", "VARCHAR(20)", "INT"};
         String[] nulls = {"NOT NULL", "", "NOT NULL"};
         String[] pk = {"COL1", "COL3"};
         String[] values = {"123", "HOLA", "888"};
+        String[] values2 = {"456", "ADIOS", "888"};
+        String[] svalues = {"888"};
         String[] delCols = {"COL2", "COL3"};
         String[] delValues = {"ADIOS", "33"};
 
@@ -48,6 +54,8 @@ public class DatabaseAPI {
         System.out.println("OPEN CONNECTON: " + api.openConnection("DB_NAME", "root", "admin"));
         System.out.println("CREATE TABLE: " + api.createTable("T1", names, types, nulls, pk));
         System.out.println("ADD ROW: " + api.addRow("T1", values));
+        System.out.println("ADD ROW: " + api.addRow("T1", values2));
+        System.out.println("SELECT: " + api.select("T1", snames, wnames, svalues)); 
         System.out.println("DELETE ROW: " + api.deleteRow("T1", delCols, delValues));
         System.out.println("DELETE TABLE: " + api.deleteTable("T1"));
         System.out.println("CLOSE CONNECTION: " + api.closeConnection("DB_NAME", "root", "admin"));
@@ -90,7 +98,9 @@ public class DatabaseAPI {
             return true;
         }
         catch (IOException ex) {
-            Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            if (DEBUG) {
+               Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return false;
         }
     }
@@ -157,7 +167,8 @@ public class DatabaseAPI {
      * @return : True if successfull, False otherwise
      */
     public boolean createTable(String tableName, String[] columnNames,
-                               String[] columnTypes, String[] nulls, String[] pk) {
+                               String[] columnTypes, String[] nulls, 
+                               String[] pk) {
 
         StringBuilder cad = new StringBuilder();
 
@@ -308,30 +319,34 @@ public class DatabaseAPI {
      * clause composed of (ColumnName - Value) elements.
      *
      * @param tableName : Name of the table
-     * @param columnNames : Names of the columns to compare
+     * @param selectColumnNames : Name of the columns to return
+     * @param whereColumnNames : Names of the columns to compare
      * @param values : Values of the columns being compared
-     * @return : ResultSet, null if exception
+     * @return : 2-D ArrayList with results, null if exception
      */
-    public ResultSet select(String tableName, String[] columnNames,
-                            String[] values) {
+    public ArrayList<ArrayList<String>> select(String tableName, 
+                                               String[] selectColumnNames,
+                                               String[] whereColumnNames,
+                                               String[] values) {
 
         StringBuilder cad = new StringBuilder();
-        cad.append("SELECT FROM ").append(tableName).append(" WHERE ");
+        cad.append("SELECT ").append(join(selectColumnNames)).append(" FROM ").
+                              append(tableName).append(" WHERE ");
 
         for (int i = 0; i < values.length; i++) {
 
             try { // If column has a decimal value
                 double valueFloat = Double.parseDouble(values[i]);
-                cad.append(columnNames[i]).append(" = ").append(valueFloat).append("");
+                cad.append(whereColumnNames[i]).append(" = ").append(valueFloat).append("");
             }
             catch (Exception e1) {
 
                 try { // If column has an integer value
                     int valueInt = Integer.parseInt(values[i]);
-                    cad.append(columnNames[i]).append(" = ").append(valueInt).append("");
+                    cad.append(whereColumnNames[i]).append(" = ").append(valueInt).append("");
                 }
                 catch (Exception e2) { // Column is not a number
-                    cad.append(columnNames[i]).append(" = '").append(values[i]).append("'");
+                    cad.append(whereColumnNames[i]).append(" = '").append(values[i]).append("'");
                 }
             }
 
@@ -344,7 +359,20 @@ public class DatabaseAPI {
 
         try {
             Statement stmt = connection.createStatement();
-            return stmt.executeQuery(createString);
+            ResultSet rs = stmt.executeQuery(createString);
+            
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int columnsNumber = rsmd.getColumnCount();
+            
+            ArrayList<ArrayList<String>> results = new ArrayList();
+            while(rs.next()) {
+                ArrayList<String> row = new ArrayList();
+                for(int i=1;i<=columnsNumber;i++){
+                    row.add(rs.getString(i)); // Index starts at 1
+                }
+                results.add(row);
+            }
+            return results;
         }
         catch (SQLException ex) {
             if (DEBUG) {
@@ -374,6 +402,15 @@ public class DatabaseAPI {
         }
 
         return cleanPath.toString();
+    }
+    
+    private static String join(String[] array){
+        StringBuilder cad = new StringBuilder();
+        for(int i=0;i<array.length-1;i++){
+            cad.append(array[i]).append(",");
+        }
+        cad.append(array[array.length-1]);
+        return cad.toString();
     }
 
 }
