@@ -44,14 +44,14 @@ public class DatabaseAPI {
         
         System.out.println("Databases location: "+DB_PATH);      
         
-        //api.createDatabase("DB_NAME", "root", "admin");
-        //api.openConnection("DB_NAME", "root", "admin");
-        //api.createTable("T1",names,types,nulls,pk);
-        //api.deleteTable("T1");
-        //api.addRow("T1",values);
-        //api.deleteRow("T1", delCols, delValues);
-        //api.closeConnection("DB_NAME", "root", "admin");
-        //api.deleteDatabase("DB_NAME", "root", "admin");
+        System.out.println("CREATE DB: "+api.createDatabase("DB_NAME", "root", "admin"));
+        System.out.println("OPEN CONNECTON: "+api.openConnection("DB_NAME", "root", "admin"));
+        System.out.println("CREATE TABLE: "+api.createTable("T1",names,types,nulls,pk));     
+        System.out.println("ADD ROW: "+api.addRow("T1",values));
+        System.out.println("DELETE ROW: "+api.deleteRow("T1", delCols, delValues));
+        System.out.println("DELETE TABLE: "+api.deleteTable("T1"));
+        System.out.println("CLOSE CONNECTION: "+api.closeConnection("DB_NAME", "root", "admin"));
+        System.out.println("DELETE DB: "+api.deleteDatabase("DB_NAME", "root", "admin"));
     }
     
     /**
@@ -62,7 +62,6 @@ public class DatabaseAPI {
      * @return : True if successfull, False otherwise
      */
     public boolean createDatabase(String dbName, String user, String pw){
-        System.out.println("\n\n***\nSTRING: " + "jdbc:derby:"+DB_PATH+dbName+";create=true\n***\n\n"); 
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             connection = DriverManager.getConnection(
@@ -105,7 +104,7 @@ public class DatabaseAPI {
             connection = DriverManager.getConnection(
                             "jdbc:derby:"+DB_PATH+dbName,
                             user,
-                            pw);
+                            pw);         
             return true;
         } catch (ClassNotFoundException | SQLException ex) {
             if(DEBUG) Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
@@ -162,8 +161,6 @@ public class DatabaseAPI {
         
         String createString = cad.toString();
         createString = createString.substring(0, createString.length()-2) + "))";
-            
-        System.out.println(createString); 
         
         try {          
             Statement stmt = connection.createStatement();
@@ -310,11 +307,11 @@ public class DatabaseAPI {
             }
         }
         
-        String deleteString = cad.toString();
+        String createString = cad.toString();
         
         try {          
             Statement stmt = connection.createStatement();
-            return stmt.executeQuery(deleteString);
+            return stmt.executeQuery(createString);
         } catch (SQLException ex) {
             if(DEBUG) Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             return null;
