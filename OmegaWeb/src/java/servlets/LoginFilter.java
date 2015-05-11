@@ -29,11 +29,12 @@ public class LoginFilter implements Filter {
      * Constante con propósitos de depuración. Sirve para que no se tenga que
      * hacer login para realizar pruebas más rápidamente en agunos casos.
      */
-    private static final boolean VALIDATION = false;
+    private static final boolean VALIDATION = true;
     
     private static final boolean debug = true;
     private static final String[] NO_LOGIN = new String[]{
         "login",
+        "register",
         "login_control",
         "register_control"
     };
