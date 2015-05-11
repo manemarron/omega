@@ -5,7 +5,7 @@
  */
 package db;
 
-import java.io.IOException;
+import java.io.File;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -79,8 +79,7 @@ public class DatabaseAPI {
                     user,
                     pw);
             return true;
-        }
-        catch (ClassNotFoundException | SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             if (DEBUG) {
                 Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -98,19 +97,31 @@ public class DatabaseAPI {
      */
     public boolean deleteDatabase(String dbName, String user, String pw) {
         try {
-            if (!connection.isClosed()) {
+            if (connection != null && !connection.isClosed()) {
                 this.closeConnection(dbName, user, pw);
             }
-            Runtime r = Runtime.getRuntime();
-            Process p = r.exec("rm -r " + DB_PATH + dbName);
-            return true;
-        }
-        catch (IOException | SQLException ex) {
-            if (DEBUG) {
-                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            File f = new File(DB_PATH + dbName);
+            if (!f.exists()) {
+                return false;
             }
-            return false;
+            return deleteRecursive(f);
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
+    }
+
+    private boolean deleteRecursive(File path) {
+        File[] c = path.listFiles();
+        for (File file : c) {
+            if (file.isDirectory()) {
+                deleteRecursive(file);
+                file.delete();
+            } else {
+                file.delete();
+            }
+        }
+        return path.delete();
     }
 
     /**
@@ -129,8 +140,7 @@ public class DatabaseAPI {
                     user,
                     pw);
             return true;
-        }
-        catch (ClassNotFoundException | SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             if (DEBUG) {
                 Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -154,14 +164,12 @@ public class DatabaseAPI {
                     user,
                     pw);
             return true;
-        }
-        catch (ClassNotFoundException | SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
 
             if (ex.getClass().equals(SQLNonTransientConnectionException.class)) {
-                System.out.println("Successfull shutdown");
+                System.out.println("Successful shutdown");
                 return true;
-            }
-            else if (DEBUG) {
+            } else if (DEBUG) {
                 Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
             return false;
@@ -180,9 +188,16 @@ public class DatabaseAPI {
      * @return : True if successful, False otherwise
      */
     public boolean createTable(String tableName, String[] columnNames,
-                               String[] columnTypes, String[] nulls,
-                               String[] pk) {
-
+            String[] columnTypes, String[] nulls,
+            String[] pk) {
+        if(columnNames.length == 0)
+            return false;
+        if(columnNames.length != columnTypes.length || 
+                columnNames.length!=nulls.length)
+            return false;
+        if(pk.length==0 || pk.length>columnNames.length)
+            return false;
+        
         StringBuilder cad = new StringBuilder();
 
         cad.append("CREATE TABLE ").append(tableName).append(" (");
@@ -191,21 +206,22 @@ public class DatabaseAPI {
             cad.append(columnNames[i]).append(" ").append(columnTypes[i]).append(" ").append(nulls[i]).append(", ");
         }
 
-        cad.append("PRIMARY KEY (");
-
-        for (int i = 0; i < pk.length; i++) {
-            cad.append(pk[i]).append(", ");
+        if (pk.length > 0) {
+            cad.append("PRIMARY KEY (");
+            for (int i = 0; i < pk.length; i++) {
+                cad.append(pk[i]);
+                if(i<pk.length-1) cad.append(", ");
+            }
+            cad.append(")");
         }
 
-        String createString = cad.toString();
-        createString = createString.substring(0, createString.length() - 2) + "))";
+        cad.append(")");
 
         try {
             Statement stmt = connection.createStatement();
-            stmt.executeUpdate(createString);
+            stmt.executeUpdate(cad.toString());
             return true;
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             if (DEBUG) {
                 Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -224,8 +240,7 @@ public class DatabaseAPI {
             Statement stmt = connection.createStatement();
             stmt.executeUpdate("DROP TABLE " + tableName);
             return true;
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             if (DEBUG) {
                 Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -266,8 +281,7 @@ public class DatabaseAPI {
 
             psInsert.executeUpdate();
             return true;
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             if (DEBUG) {
                 Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -285,7 +299,7 @@ public class DatabaseAPI {
      * @return : True if successful, False otherwise
      */
     public boolean deleteRow(String tableName, String[] columnNames,
-                             String[] values) {
+            String[] values) {
 
         StringBuilder cad = new StringBuilder();
         cad.append("DELETE FROM ").append(tableName).append(" WHERE ");
@@ -295,14 +309,12 @@ public class DatabaseAPI {
             try { // If column has an integer value
                 int valueInt = Integer.parseInt(values[i]);
                 cad.append(columnNames[i]).append(" = ").append(valueInt).append("");
-            }
-            catch (Exception e1) {
+            } catch (Exception e1) {
 
                 try { // If column has a decimal value
                     double valueFloat = Double.parseDouble(values[i]);
                     cad.append(columnNames[i]).append(" = ").append(valueFloat).append("");
-                }
-                catch (Exception e2) { // Column is not a number
+                } catch (Exception e2) { // Column is not a number
                     cad.append(columnNames[i]).append(" = '").append(values[i]).append("'");
                 }
             }
@@ -318,8 +330,7 @@ public class DatabaseAPI {
             Statement stmt = connection.createStatement();
             stmt.executeUpdate(deleteString);
             return true;
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             if (DEBUG) {
                 Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -338,9 +349,9 @@ public class DatabaseAPI {
      * @return : 2-D ArrayList with results, null if exception
      */
     public ArrayList<ArrayList<String>> select(String tableName,
-                                               String[] selectColumnNames,
-                                               String[] whereColumnNames,
-                                               String[] values) {
+            String[] selectColumnNames,
+            String[] whereColumnNames,
+            String[] values) {
 
         StringBuilder cad = new StringBuilder();
         cad.append("SELECT ").append(join(selectColumnNames, ",")).append(" FROM ").
@@ -351,14 +362,12 @@ public class DatabaseAPI {
             try { // If column has an integer value
                 int valueInt = Integer.parseInt(values[i]);
                 cad.append(whereColumnNames[i]).append(" = ").append(valueInt).append("");
-            }
-            catch (Exception e1) {
+            } catch (Exception e1) {
 
                 try { // If column has a decimal value
                     double valueFloat = Double.parseDouble(values[i]);
                     cad.append(whereColumnNames[i]).append(" = ").append(valueFloat).append("");
-                }
-                catch (Exception e2) { // Column is not a number
+                } catch (Exception e2) { // Column is not a number
                     cad.append(whereColumnNames[i]).append(" = '").append(values[i]).append("'");
                 }
             }
@@ -386,8 +395,7 @@ public class DatabaseAPI {
                 results.add(row);
             }
             return results;
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             if (DEBUG) {
                 Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -407,14 +415,13 @@ public class DatabaseAPI {
         for (String directory : pathSegments) {
             if (!directory.equals("build")) {
                 cleanPath.append(directory).append("/");
-            }
-            else {
+            } else {
                 cleanPath.append("db").append("/");
                 break;
             }
         }
         String s = cleanPath.toString();
-        s = s.replaceAll("%20","\\ ");
+        s = s.replaceAll("%20", "\\ ");
         return s;
     }
 
