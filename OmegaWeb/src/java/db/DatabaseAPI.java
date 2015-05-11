@@ -69,7 +69,7 @@ public class DatabaseAPI {
      * @param dbName : Name of the new database
      * @param user : Username of the database
      * @param pw : Password for that user
-     * @return : True if successfull, False otherwise
+     * @return : True if successful, False otherwise
      */
     public boolean createDatabase(String dbName, String user, String pw) {
         try {
@@ -94,7 +94,7 @@ public class DatabaseAPI {
      * @param dbName : The name of the database
      * @param user : Username of the database
      * @param pw : Password for that user
-     * @return : True if deletion was successfull, False otherwise
+     * @return : True if deletion was successful, False otherwise
      */
     public boolean deleteDatabase(String dbName, String user, String pw) {
         try {
@@ -119,7 +119,7 @@ public class DatabaseAPI {
      * @param dbName : Name of the new database
      * @param user : Username of the database
      * @param pw : Password for that user
-     * @return : True if successfull, False otherwise
+     * @return : True if successful, False otherwise
      */
     public boolean openConnection(String dbName, String user, String pw) {
         try {
@@ -144,7 +144,7 @@ public class DatabaseAPI {
      * @param dbName : Name of the new database
      * @param user : Username of the database
      * @param pw : Password for that user
-     * @return : True if successfull, False otherwise
+     * @return : True if successful, False otherwise
      */
     public boolean closeConnection(String dbName, String user, String pw) {
         try {
@@ -177,7 +177,7 @@ public class DatabaseAPI {
      * @param columnTypes : Types of the columns
      * @param nulls : If column can be NULL or not
      * @param pk : The columns to use as primary key
-     * @return : True if successfull, False otherwise
+     * @return : True if successful, False otherwise
      */
     public boolean createTable(String tableName, String[] columnNames,
                                String[] columnTypes, String[] nulls,
@@ -217,7 +217,7 @@ public class DatabaseAPI {
      * Deletes a table given its name
      *
      * @param tableName : The name of the table
-     * @return : True if successfull, False otherwise
+     * @return : True if successful, False otherwise
      */
     public boolean deleteTable(String tableName) {
         try {
@@ -242,7 +242,7 @@ public class DatabaseAPI {
      *
      * @param tableName : Name of the table
      * @param values : Values to be inserted
-     * @return : True if successfull, False otherwise
+     * @return : True if successful, False otherwise
      */
     public boolean addRow(String tableName, String[] values) {
 
@@ -282,7 +282,7 @@ public class DatabaseAPI {
      * @param tableName : Name of the table
      * @param columnNames : Names of the columns to compare
      * @param values : Values of the columns being compared
-     * @return : True if successfull, False otherwise
+     * @return : True if successful, False otherwise
      */
     public boolean deleteRow(String tableName, String[] columnNames,
                              String[] values) {
@@ -413,8 +413,9 @@ public class DatabaseAPI {
                 break;
             }
         }
-
-        return cleanPath.toString();
+        String s = cleanPath.toString();
+        s = s.replaceAll("%20","\\ ");
+        return s;
     }
 
     private String join(String[] array, String sep) {
