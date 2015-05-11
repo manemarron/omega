@@ -11,8 +11,10 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
+        <%@include file="jsp/styles_scripts.jsp" %>
     </head>
     <body>
-        <h1>Hello <%=((User)session.getAttribute("user")).getFirstName() %>!</h1>
+        <%@include file="jsp/header.jsp" %>
+        
     </body>
 </html>

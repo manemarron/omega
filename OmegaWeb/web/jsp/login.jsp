@@ -10,12 +10,12 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Login</title>
-        <% if(request.getSession().getAttribute("error") != null) { %>
+        <% if(session.getAttribute("error") != null) { %>
         <script type="text/javascript">
-            alert("<%= request.getSession().getAttribute("error") %>");
+            alert("<%= session.getAttribute("error") %>");
         </script>
         <% } 
-        request.getSession().removeAttribute("error");%>
+       session.removeAttribute("error");%>
     </head>
     <body>
         <h1>Login</h1>
