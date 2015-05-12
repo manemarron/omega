@@ -1,0 +1,22 @@
+
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Login</title>
+        
+    </head>
+    <body>
+        <h1>Login</h1>
+        <form action="/OmegaWeb/login_control" method="post">
+            username: <input type="text" name="username" value="" /><br/>
+            password: <input type="password" name="password" /><br/>
+            <input type="submit" value="Login" name="type" />            
+        </form>
+            <p>
+                Si no estás registrado, <a href="register" >haz clic aquí</a> para registrarte
+            </p>
+    </body>
+</html>
