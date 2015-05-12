@@ -19,12 +19,14 @@ public class User {
     private String lastName;
     private String dbName;
     
-    public void setFromResultSet(ResultSet rs) throws SQLException{
-        id = rs.getInt("ID");
-        username = rs.getString("USERNAME");
-        firstName = rs.getString("FIRST_NAME");
-        lastName = rs.getString("LAST_NAME");
-        dbName = rs.getString("DB_NAME");
+    public static User setFromResultSet(ResultSet rs) throws SQLException{
+        User user = new User();
+        user.id = rs.getInt("ID");
+        user.username = rs.getString("USERNAME");
+        user.firstName = rs.getString("FIRST_NAME");
+        user.lastName = rs.getString("LAST_NAME");
+        user.dbName = rs.getString("DB_NAME");
+        return user;
     }
 
     public int getId() {

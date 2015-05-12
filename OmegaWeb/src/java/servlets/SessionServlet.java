@@ -11,6 +11,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -100,14 +102,14 @@ public class SessionServlet extends HttpServlet {
         if (valid(username) && valid(first_name) && valid(last_name) && valid(pass) && passwords_match) {
             try {
                 CONNECTION.setConnection();
-                String query = String.format("INSERT INTO USERS(USERNAME,PASSWORD,FIRST_NAME,LAST_NAME) VALUES('%s','%s','%s','%s')",
-                        username, pass, first_name, last_name);
-                CONNECTION.executeQuery(query);
-                query = String.format("SELECT * FROM USERS WHERE username='%s'", username);
-                ResultSet rs = CONNECTION.getResultSet(query);
+                String query = "INSERT INTO USERS(USERNAME,PASSWORD,FIRST_NAME,LAST_NAME) VALUES(?,?,?,?)";
+                List<?> params = Arrays.asList(new String[]{username,pass,first_name,last_name});
+                CONNECTION.executeQuery(query,params);
+                query = "SELECT * FROM USERS WHERE username=?";
+                params = Arrays.asList(new String[]{username});
+                ResultSet rs = CONNECTION.getResultSet(query,params);
                 if (rs.next()) {
-                    User user = new User();
-                    user.setFromResultSet(rs);
+                    User user = User.setFromResultSet(rs);
                     session.setAttribute("user", user);
                     return true;
                 }
@@ -142,12 +144,12 @@ public class SessionServlet extends HttpServlet {
         if (valid(username) && valid(pass)) {
             try {
                 CONNECTION.setConnection();
-                String query = String.format("SELECT * FROM USERS WHERE username='%s'", username);
-                ResultSet rs = CONNECTION.getResultSet(query);
+                String query = "SELECT * FROM USERS WHERE username=?";
+                List<?> params = Arrays.asList(new String[]{username});
+                ResultSet rs = CONNECTION.getResultSet(query,params);
                 if (rs.next()) {
                     if (rs.getString("password").equals(pass)) {
-                        User user = new User();
-                        user.setFromResultSet(rs);
+                        User user = User.setFromResultSet(rs);
                         session.setAttribute("user", user);
                         return true;
                     } else {

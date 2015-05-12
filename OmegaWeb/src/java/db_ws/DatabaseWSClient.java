@@ -52,9 +52,10 @@ public class DatabaseWSClient {
         String dbName = createDB.getDbName();
         String user = createDB.getUser();
         String pw = createDB.getPw();
+        int user_id = createDB.getUser_id();
         
         DatabaseWS_Service service = new DatabaseWS_Service();
         DatabaseWS port = service.getDatabaseWSPort();
-        port.createDatabase(dbName, user, pw);
+        port.createDatabase(dbName, user, pw, user_id);
     }
 }

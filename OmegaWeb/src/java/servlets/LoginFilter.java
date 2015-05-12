@@ -30,7 +30,7 @@ public class LoginFilter implements Filter {
      * hacer login para realizar pruebas más rápidamente en agunos casos.
      */
     private static final boolean VALIDATION = true;
-    
+
     private static final boolean debug = true;
     private static final String[] NO_LOGIN = new String[]{
         "login",
@@ -57,10 +57,10 @@ public class LoginFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
-        
+
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
-        
+
         if (VALIDATION) {
             HttpSession session = req.getSession();
             if (session.getAttribute("user") == null) {
@@ -131,7 +131,7 @@ public class LoginFilter implements Filter {
         sb.append(")");
         return (sb.toString());
     }
-    
+
     public static String getStackTrace(Throwable t) {
         String stackTrace = null;
         try {
@@ -145,9 +145,9 @@ public class LoginFilter implements Filter {
         }
         return stackTrace;
     }
-    
+
     public void log(String msg) {
         filterConfig.getServletContext().log(msg);
     }
-    
+
 }
