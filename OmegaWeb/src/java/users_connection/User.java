@@ -18,6 +18,8 @@ public class User {
     private String firstName;
     private String lastName;
     private String dbName;
+    private String dbUser;
+    private String dbPw;
     
     public static User setFromResultSet(ResultSet rs) throws SQLException{
         User user = new User();
@@ -26,6 +28,8 @@ public class User {
         user.firstName = rs.getString("FIRST_NAME");
         user.lastName = rs.getString("LAST_NAME");
         user.dbName = rs.getString("DB_NAME");
+        user.dbUser = rs.getString("DB_USER");
+        user.dbPw = rs.getString("DB_PASSWORD");
         return user;
     }
 
@@ -47,6 +51,14 @@ public class User {
 
     public String getDbName() {
         return dbName;
+    }
+
+    public String getDbUser() {
+        return dbUser;
+    }
+
+    public String getDbPw() {
+        return dbPw;
     }
     
     

@@ -72,19 +72,22 @@ public class DatabaseAPI {
      * @return : True if successful, False otherwise
      */
     public boolean createDatabase(String dbName, String user, String pw) {
+        File db = new File(DB_PATH + dbName);
+        if(db.exists()) return false;
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             connection = DriverManager.getConnection(
                     "jdbc:derby:" + DB_PATH + dbName + ";create=true",
                     user,
                     pw);
-            return true;
+            db = new File(DB_PATH + dbName);
+            if(db.exists()) return true;
         } catch (ClassNotFoundException | SQLException ex) {
             if (DEBUG) {
                 Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
-            return false;
         }
+        return false;
     }
 
     /**

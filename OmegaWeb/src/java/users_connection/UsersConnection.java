@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -43,6 +44,8 @@ public class UsersConnection {
                     statement.setInt(i + 1, Integer.parseInt(params.get(i).toString()));
                 } catch (NumberFormatException nfe) {
                     statement.setString(i + 1, (String) params.get(i));
+                } catch(Exception e){
+                    statement.setString(i + 1, null);
                 }
             }
             result = statement.executeQuery();
@@ -51,16 +54,12 @@ public class UsersConnection {
     }
 
     public int executeQuery(String query, List<?> params) throws SQLException {
-        System.out.println("antes de statement");
         PreparedStatement statement = con.prepareStatement(query);
-        System.out.println("despues del statement");
         for (int i = 0; i < params.size(); i++) {
             try {
                 statement.setInt(i + 1, Integer.parseInt(params.get(i).toString()));
-                System.out.println("added int parameter");
             } catch (NumberFormatException nfe) {
                 statement.setString(i + 1, (String) params.get(i));
-                System.out.println("added string parameter");
             }
         }
         return statement.executeUpdate();
