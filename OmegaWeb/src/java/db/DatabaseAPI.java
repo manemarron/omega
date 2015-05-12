@@ -13,130 +13,165 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLNonTransientConnectionException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  *
- * @author andemurillo
+ * @author andermurillo
  */
 public class DatabaseAPI {
-    
+
     private Connection connection;
-    private final boolean DEBUG = false;
+    private final boolean DEBUG = true;
     private static String DB_PATH;
-    
-    public DatabaseAPI(){
+
+    public DatabaseAPI() {
         DB_PATH = this.currentDBPath();
     }
-    
-    public static void main(String args[]){
-        
-        String[] names = {"COL1","COL2","COL3"};
-        String[] types = {"INT","VARCHAR(20)","INT"};
-        String[] nulls = {"NOT NULL","","NOT NULL"};
-        String[] pk = {"COL1","COL3"};
-        String[] values = {"123","HOLA","888"};
-        String[] delCols = {"COL2","COL3"};
-        String[] delValues = {"ADIOS","33"};
-        
+
+    public static void main(String args[]) {
+
+        String[] names = {"COL1", "COL2", "COL3"};
+        String[] snames = {"COL1", "COL3"};
+        String[] wnames = {"COL3"};
+        String[] types = {"INT", "VARCHAR(20)", "INT"};
+        String[] nulls = {"NOT NULL", "", "NOT NULL"};
+        String[] pk = {"COL1", "COL3"};
+        String[] values = {"123", "HOLA", "888"};
+        String[] values2 = {"456", "ADIOS", "888"};
+        String[] svalues = {"888"};
+        String[] delCols = {"COL2", "COL3"};
+        String[] delValues = {"ADIOS", "33"};
+
         DatabaseAPI api = new DatabaseAPI();
-        
-        System.out.println("Databases location: "+DB_PATH);      
-        
-        //api.createDatabase("DB_NAME", "root", "admin");
-        //api.openConnection("DB_NAME", "root", "admin");
-        //api.createTable("T1",names,types,nulls,pk);
-        //api.deleteTable("T1");
-        //api.addRow("T1",values);
-        //api.deleteRow("T1", delCols, delValues);
-        //api.closeConnection("DB_NAME", "root", "admin");
-        //api.deleteDatabase("DB_NAME", "root", "admin");
+
+        System.out.println("Databases location: " + DB_PATH);
+
+        System.out.println("CREATE DB: " + api.createDatabase("DB_NAME", "root", "admin"));
+        System.out.println("OPEN CONNECTON: " + api.openConnection("DB_NAME", "root", "admin"));
+        System.out.println("CREATE TABLE: " + api.createTable("T1", names, types, nulls, pk));
+        System.out.println("ADD ROW: " + api.addRow("T1", values));
+        System.out.println("ADD ROW: " + api.addRow("T1", values2));
+        System.out.println("SELECT: " + api.select("T1", snames, wnames, svalues));
+        System.out.println("DELETE ROW: " + api.deleteRow("T1", delCols, delValues));
+        System.out.println("DELETE TABLE: " + api.deleteTable("T1"));
+        System.out.println("CLOSE CONNECTION: " + api.closeConnection("DB_NAME", "root", "admin"));
+        System.out.println("DELETE DB: " + api.deleteDatabase("DB_NAME", "root", "admin"));
     }
-    
+
     /**
      * Creates a new database with the provided parameters
+     *
      * @param dbName : Name of the new database
      * @param user : Username of the database
-     * @param pw  : Password for that user
+     * @param pw : Password for that user
      * @return : True if successfull, False otherwise
      */
-    public boolean createDatabase(String dbName, String user, String pw){
-        System.out.println("\n\n***\nSTRING: " + "jdbc:derby:"+DB_PATH+dbName+";create=true\n***\n\n"); 
+    public boolean createDatabase(String dbName, String user, String pw) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             connection = DriverManager.getConnection(
-                            "jdbc:derby:"+DB_PATH+dbName+";create=true",
-                            user,
-                            pw);
+                    "jdbc:derby:" + DB_PATH + dbName + ";create=true",
+                    user,
+                    pw);
             return true;
-        } catch (ClassNotFoundException | SQLException ex) {
-            if(DEBUG) Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (ClassNotFoundException | SQLException ex) {
+            if (DEBUG) {
+                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return false;
         }
     }
-    
-    public boolean deleteDatabase(String dbName, String user, String pw){
+
+    /**
+     * Deletes an existing database
+     *
+     * @param dbName : The name of the database
+     * @param user : Username of the database
+     * @param pw : Password for that user
+     * @return : True if deletion was successfull, False otherwise
+     */
+    public boolean deleteDatabase(String dbName, String user, String pw) {
         try {
-            //There is no drop database command. To drop a database, delete the database
-            //directory with operating system commands. The database must not be booted
-            //when you remove a database.
-            this.closeConnection(dbName,user,pw);
+            if (!connection.isClosed()) {
+                this.closeConnection(dbName, user, pw);
+            }
             Runtime r = Runtime.getRuntime();
-            Process p = r.exec("rm -r " + DB_PATH + dbName);        
+            Process p = r.exec("rm -r " + DB_PATH + dbName);
             return true;
-        } catch (IOException ex) {
-            Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException | SQLException ex) {
+            if (DEBUG) {
+                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return false;
         }
     }
-    
-    
+
     /**
      * Creates a connection with the provided parameters
+     *
      * @param dbName : Name of the new database
      * @param user : Username of the database
-     * @param pw  : Password for that user
+     * @param pw : Password for that user
      * @return : True if successfull, False otherwise
      */
-    public boolean openConnection(String dbName, String user, String pw){
+    public boolean openConnection(String dbName, String user, String pw) {
         try {
             Class.forName("org.apache.derby.jdbc.ClientDriver");
             connection = DriverManager.getConnection(
-                            "jdbc:derby:"+DB_PATH+dbName,
-                            user,
-                            pw);
+                    "jdbc:derby:" + DB_PATH + dbName,
+                    user,
+                    pw);
             return true;
-        } catch (ClassNotFoundException | SQLException ex) {
-            if(DEBUG) Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (ClassNotFoundException | SQLException ex) {
+            if (DEBUG) {
+                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return false;
         }
     }
-    
+
     /**
      * Closes the connection associated to the provided parameters
+     *
      * @param dbName : Name of the new database
      * @param user : Username of the database
-     * @param pw  : Password for that user
+     * @param pw : Password for that user
      * @return : True if successfull, False otherwise
      */
-    public boolean closeConnection(String dbName, String user, String pw){
+    public boolean closeConnection(String dbName, String user, String pw) {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             connection = DriverManager.getConnection(
-                            "jdbc:derby:"+DB_PATH+dbName+";shutdown=true",
-                            user,
-                            pw);
+                    "jdbc:derby:" + DB_PATH + dbName + ";shutdown=true",
+                    user,
+                    pw);
             return true;
-        } catch (ClassNotFoundException | SQLException ex) {
-            if(DEBUG) Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (ClassNotFoundException | SQLException ex) {
+
+            if (ex.getClass().equals(SQLNonTransientConnectionException.class)) {
+                System.out.println("Successfull shutdown");
+                return true;
+            }
+            else if (DEBUG) {
+                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return false;
         }
     }
-    
+
     /**
-     * Creates a new table on the current database (determined by the connection)
-     * by receiving a name and 4 lists:
+     * Creates a new table on the current database (determined by the
+     * connection) by receiving a name and 4 lists:
+     *
      * @param tableName : Name of the new table
      * @param columnNames : Names of the columns
      * @param columnTypes : Types of the columns
@@ -144,203 +179,251 @@ public class DatabaseAPI {
      * @param pk : The columns to use as primary key
      * @return : True if successfull, False otherwise
      */
-    public boolean createTable(String tableName, String[] columnNames, String[] columnTypes, String[] nulls, String[] pk){
-        
+    public boolean createTable(String tableName, String[] columnNames,
+                               String[] columnTypes, String[] nulls,
+                               String[] pk) {
+
         StringBuilder cad = new StringBuilder();
-        
+
         cad.append("CREATE TABLE ").append(tableName).append(" (");
-        
-        for(int i=0;i<columnNames.length;i++){
+
+        for (int i = 0; i < columnNames.length; i++) {
             cad.append(columnNames[i]).append(" ").append(columnTypes[i]).append(" ").append(nulls[i]).append(", ");
         }
-        
+
         cad.append("PRIMARY KEY (");
-        
-        for(int i=0;i<pk.length;i++){
+
+        for (int i = 0; i < pk.length; i++) {
             cad.append(pk[i]).append(", ");
         }
-        
+
         String createString = cad.toString();
-        createString = createString.substring(0, createString.length()-2) + "))";
-            
-        System.out.println(createString); 
-        
-        try {          
+        createString = createString.substring(0, createString.length() - 2) + "))";
+
+        try {
             Statement stmt = connection.createStatement();
             stmt.executeUpdate(createString);
             return true;
-        } catch (SQLException ex) {
-            if(DEBUG) Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (SQLException ex) {
+            if (DEBUG) {
+                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return false;
         }
     }
-    
+
     /**
      * Deletes a table given its name
+     *
      * @param tableName : The name of the table
      * @return : True if successfull, False otherwise
      */
-    public boolean deleteTable(String tableName){
-        try {          
+    public boolean deleteTable(String tableName) {
+        try {
             Statement stmt = connection.createStatement();
             stmt.executeUpdate("DROP TABLE " + tableName);
             return true;
-        } catch (SQLException ex) {
-            if(DEBUG) Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
-            return false;           
+        }
+        catch (SQLException ex) {
+            if (DEBUG) {
+                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return false;
         }
     }
-    
-    public boolean alterTable(){
+
+    public boolean alterTable() {
         return true;
     }
-    
+
     /**
      * Inserts a new registry into the selected table
+     *
      * @param tableName : Name of the table
      * @param values : Values to be inserted
      * @return : True if successfull, False otherwise
      */
-    public boolean addRow(String tableName, String[] values){
-        
+    public boolean addRow(String tableName, String[] values) {
+
         StringBuilder cad = new StringBuilder();
         cad.append("INSERT INTO ").append(tableName).append(" VALUES (");
-        
-        for(int i=0;i<values.length;i++){
+
+        for (int i = 0; i < values.length; i++) {
             cad.append("?,");
         }
-        
+
         String insertString = cad.toString();
-        insertString = insertString.substring(0, insertString.length()-1) + ")";
-              
+        insertString = insertString.substring(0, insertString.length() - 1) + ")";
+
         try {
-            
+
             PreparedStatement psInsert = connection.prepareStatement(insertString);
-            
-            for(int i=0;i<values.length;i++){
-                psInsert.setString(i+1, values[i]);
+
+            for (int i = 0; i < values.length; i++) {
+                psInsert.setString(i + 1, values[i]);
             }
-            
-            psInsert.executeUpdate();       
+
+            psInsert.executeUpdate();
             return true;
-        } catch (SQLException ex) {
-            if(DEBUG) Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (SQLException ex) {
+            if (DEBUG) {
+                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return false;
         }
     }
-    
+
     /**
-     * Receives the name of a table and deletes all rows satisfying the WHERE clause
-     * composed of (ColumnName - Value) elements
+     * Receives the name of a table and deletes all rows satisfying the WHERE
+     * clause composed of (ColumnName - Value) elements
+     *
      * @param tableName : Name of the table
      * @param columnNames : Names of the columns to compare
      * @param values : Values of the columns being compared
      * @return : True if successfull, False otherwise
      */
-    public boolean deleteRow(String tableName, String[] columnNames, String[] values){
-        
+    public boolean deleteRow(String tableName, String[] columnNames,
+                             String[] values) {
+
         StringBuilder cad = new StringBuilder();
         cad.append("DELETE FROM ").append(tableName).append(" WHERE ");
-        
-        for(int i=0;i<values.length;i++){
-            
-            try{ // If column has a decimal value
-                double valueFloat = Double.parseDouble(values[i]);
-                cad.append(columnNames[i]).append(" = ").append(valueFloat).append("");                 
+
+        for (int i = 0; i < values.length; i++) {
+
+            try { // If column has an integer value
+                int valueInt = Integer.parseInt(values[i]);
+                cad.append(columnNames[i]).append(" = ").append(valueInt).append("");
             }
-            catch(Exception e1){
-                
-                try{ // If column has an integer value
-                    int valueInt = Integer.parseInt(values[i]);
-                    cad.append(columnNames[i]).append(" = ").append(valueInt).append("");     
+            catch (Exception e1) {
+
+                try { // If column has a decimal value
+                    double valueFloat = Double.parseDouble(values[i]);
+                    cad.append(columnNames[i]).append(" = ").append(valueFloat).append("");
                 }
-                catch(Exception e2){ // Column is not a number
+                catch (Exception e2) { // Column is not a number
                     cad.append(columnNames[i]).append(" = '").append(values[i]).append("'");
-                } 
+                }
             }
-                    
-            if(i<values.length-1){ // Appends AND clause for all values except the last one
+
+            if (i < values.length - 1) { // Appends AND clause for all values except the last one
                 cad.append(" AND ");
             }
         }
-        
+
         String deleteString = cad.toString();
-        
-        try {          
+
+        try {
             Statement stmt = connection.createStatement();
             stmt.executeUpdate(deleteString);
             return true;
-        } catch (SQLException ex) {
-            if(DEBUG) Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (SQLException ex) {
+            if (DEBUG) {
+                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return false;
         }
     }
-    
-    /**Receives the name of a table and selects all rows satisfying the WHERE clause
-     * composed of (ColumnName - Value) elements. 
+
+    /**
+     * Receives the name of a table and selects all rows satisfying the WHERE
+     * clause composed of (ColumnName - Value) elements.
+     *
      * @param tableName : Name of the table
-     * @param columnNames : Names of the columns to compare
+     * @param selectColumnNames : Name of the columns to return
+     * @param whereColumnNames : Names of the columns to compare
      * @param values : Values of the columns being compared
-     * @return : ResultSet, null if exception
+     * @return : 2-D ArrayList with results, null if exception
      */
-    public ResultSet select(String tableName, String[] columnNames, String[] values){
-        
+    public ArrayList<ArrayList<String>> select(String tableName,
+                                               String[] selectColumnNames,
+                                               String[] whereColumnNames,
+                                               String[] values) {
+
         StringBuilder cad = new StringBuilder();
-        cad.append("SELECT FROM ").append(tableName).append(" WHERE ");
-        
-        for(int i=0;i<values.length;i++){
-            
-            try{ // If column has a decimal value
-                double valueFloat = Double.parseDouble(values[i]);
-                cad.append(columnNames[i]).append(" = ").append(valueFloat).append("");                 
+        cad.append("SELECT ").append(join(selectColumnNames, ",")).append(" FROM ").
+                append(tableName).append(" WHERE ");
+
+        for (int i = 0; i < values.length; i++) {
+
+            try { // If column has an integer value
+                int valueInt = Integer.parseInt(values[i]);
+                cad.append(whereColumnNames[i]).append(" = ").append(valueInt).append("");
             }
-            catch(Exception e1){
-                
-                try{ // If column has an integer value
-                    int valueInt = Integer.parseInt(values[i]);
-                    cad.append(columnNames[i]).append(" = ").append(valueInt).append("");     
+            catch (Exception e1) {
+
+                try { // If column has a decimal value
+                    double valueFloat = Double.parseDouble(values[i]);
+                    cad.append(whereColumnNames[i]).append(" = ").append(valueFloat).append("");
                 }
-                catch(Exception e2){ // Column is not a number
-                    cad.append(columnNames[i]).append(" = '").append(values[i]).append("'");
-                } 
+                catch (Exception e2) { // Column is not a number
+                    cad.append(whereColumnNames[i]).append(" = '").append(values[i]).append("'");
+                }
             }
-                    
-            if(i<values.length-1){ // Appends AND clause for all values except the last one
+
+            if (i < values.length - 1) { // Appends AND clause for all values except the last one
                 cad.append(" AND ");
             }
         }
-        
-        String deleteString = cad.toString();
-        
-        try {          
+
+        String createString = cad.toString();
+
+        try {
             Statement stmt = connection.createStatement();
-            return stmt.executeQuery(deleteString);
-        } catch (SQLException ex) {
-            if(DEBUG) Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            ResultSet rs = stmt.executeQuery(createString);
+
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int columnsNumber = rsmd.getColumnCount();
+
+            ArrayList<ArrayList<String>> results = new ArrayList();
+            while (rs.next()) {
+                ArrayList<String> row = new ArrayList();
+                for (int i = 1; i <= columnsNumber; i++) {
+                    row.add(rs.getString(i)); // Index starts at 1
+                }
+                results.add(row);
+            }
+            return results;
+        }
+        catch (SQLException ex) {
+            if (DEBUG) {
+                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return null;
         }
     }
-    
-    private String currentDBPath(){       
-        
+
+    private String currentDBPath() {
+
         URL location = this.getClass().getProtectionDomain().getCodeSource()
-            .getLocation();
+                .getLocation();
         String path = location.getFile();
 
         String[] pathSegments = path.split("/");
         StringBuilder cleanPath = new StringBuilder("");
-        
-        for(String directory : pathSegments){
-            if(!directory.equals("build")){
+
+        for (String directory : pathSegments) {
+            if (!directory.equals("build")) {
                 cleanPath.append(directory).append("/");
             }
-            else{
+            else {
                 cleanPath.append("db").append("/");
                 break;
             }
         }
 
-        return cleanPath.toString();    
+        return cleanPath.toString();
     }
-    
+
+    private String join(String[] array, String sep) {
+        StringBuilder cad = new StringBuilder();
+        for (int i = 0; i < array.length - 1; i++) {
+            cad.append(array[i]).append(sep);
+        }
+        cad.append(array[array.length - 1]);
+        return cad.toString();
+    }
+
 }
