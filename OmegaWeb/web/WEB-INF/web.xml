@@ -20,6 +20,10 @@
         <servlet-name>register</servlet-name>
         <jsp-file>/jsp/register.jsp</jsp-file>
     </servlet>
+    <servlet>
+        <servlet-name>UpdateSession</servlet-name>
+        <servlet-class>servlets.UpdateSession</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SessionServlet</servlet-name>
         <url-pattern>/login_control</url-pattern>
@@ -33,6 +37,10 @@
     <servlet-mapping>
         <servlet-name>register</servlet-name>
         <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateSession</servlet-name>
+        <url-pattern>/UpdateSession</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

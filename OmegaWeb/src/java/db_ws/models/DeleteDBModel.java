@@ -3,46 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package db_ws;
+package db_ws.models;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author manemarron
  */
-public class CreateDB {
-    private String dbName;
-    private String user;
-    private String pw;
+@XmlRootElement(name = "DeleteDBModel")
+public class DeleteDBModel {
     private int user_id;
-
-    public String getDbName() {
-        return dbName;
-    }
-
-    public void setDbName(String dbName) {
-        this.dbName = dbName;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getPw() {
-        return pw;
-    }
-
-    public void setPw(String pw) {
-        this.pw = pw;
-    }
 
     public int getUser_id() {
         return user_id;
     }
 
+    @XmlElement
     public void setUser_id(int user_id) {
         this.user_id = user_id;
     }

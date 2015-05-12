@@ -23,16 +23,19 @@ function AJAX_call(method, target, params, onSuccess, onError) {
             }
             else {
                 if (onError)
-                    onError("Hubo un error");
+                    onError(target);
             }
         }
     }
     document.getElementById("loadingDiv").style.display = "block";
     var context = "http://localhost:8080/OmegaWeb";
     ajaxRequest.open(method, context + target, true /*async*/);
-    ajaxRequest.setRequestHeader("Content-Type", "application/json");
-    if (params)
-        ajaxRequest.send(JSON.stringify(params));
-    else
+    ajaxRequest.setRequestHeader("Content-Type", "application/xml");
+    if (params) {
+        var x2js = new X2JS();
+        params = x2js.json2xml_str(params);
+        console.log(params);
+        ajaxRequest.send(params);
+    } else
         ajaxRequest.send();
 }

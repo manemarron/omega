@@ -5,6 +5,9 @@
  */
 package db_ws;
 
+import db_ws.models.CreateDBModel;
+import db_ws.models.DeleteDBModel;
+
 import db_ws_client.DatabaseWS_Service;
 import db_ws_client.DatabaseWS;
 
@@ -12,10 +15,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
+import javax.ws.rs.core.MediaType;
 
 /**
  * REST Web Service
@@ -42,20 +47,45 @@ public class DatabaseWSClient {
     @Produces("text/plain")
     public String getText() {
         //TODO return proper representation object
-        return "hola";
+        return "DataWebWizard: REST API para interacción con bases de datos";
     }
 
+    /**
+     *
+     * @param params
+     * @throws Exception
+     */
     @PUT
-    @Consumes("application/json")
+    @Consumes(MediaType.APPLICATION_XML)
     @Path("createDatabase")
-    public void createDatabase(CreateDB createDB) {
-        String dbName = createDB.getDbName();
-        String user = createDB.getUser();
-        String pw = createDB.getPw();
-        int user_id = createDB.getUser_id();
+    public void createDatabase(CreateDBModel params) throws Exception {
+        String dbName = params.getDbName();
+        String user = params.getUser();
+        String pw = params.getPw();
+        int user_id = params.getUser_id();
         
         DatabaseWS_Service service = new DatabaseWS_Service();
         DatabaseWS port = service.getDatabaseWSPort();
-        port.createDatabase(dbName, user, pw, user_id);
+        if(!port.createDatabase(dbName, user, pw, user_id))
+            throw new Exception("API ERROR");
+        
+    }
+    
+    /**
+     *
+     * @param params
+     * @throws Exception
+     */
+    @DELETE
+    @Consumes("application/xml")
+    @Path("deleteDatabase")
+    public void deleteDatabase(DeleteDBModel params) throws Exception {
+        int user_id = params.getUser_id();
+        
+        DatabaseWS_Service service = new DatabaseWS_Service();
+        DatabaseWS port = service.getDatabaseWSPort();
+        if(!port.deleteDatabase(user_id))
+            throw new Exception("API ERROR");
+        
     }
 }
