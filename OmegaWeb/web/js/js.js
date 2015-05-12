@@ -15,28 +15,24 @@ function AJAX_call(method, target, params, onSuccess, onError) {
         ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP"); // IE6, IE5
     }
     ajaxRequest.onreadystatechange = function () {
-        if (ajaxRequest.readyState === 4 && 
-                ajaxRequest.status >= 200 && ajaxRequest.status < 300) {
-            if(onSuccess) onSuccess();
-        }
-        else{
-            if(onError) onError();
+        if (ajaxRequest.readyState === 4) {
+            document.getElementById("loadingDiv").style.display = "none";
+            if (ajaxRequest.status >= 200 && ajaxRequest.status < 300) {
+                if (onSuccess)
+                    onSuccess();
+            }
+            else {
+                if (onError)
+                    onError("Hubo un error");
+            }
         }
     }
+    document.getElementById("loadingDiv").style.display = "block";
     var context = "http://localhost:8080/OmegaWeb";
-    ajaxRequest.open(method, context+target, true /*async*/);
+    ajaxRequest.open(method, context + target, true /*async*/);
     ajaxRequest.setRequestHeader("Content-Type", "application/json");
     if (params)
         ajaxRequest.send(JSON.stringify(params));
     else
         ajaxRequest.send();
 }
-
-var createDatabaseSuccessCallback = function (){
-    
-};
-
-var onError = function(params){
-    console.log(params);
-    alert(params);
-};

@@ -1,3 +1,11 @@
+var createDatabaseSuccessCallback = function (){
+    console.log("Exito: createDatabase");
+    alert("Exito: createDatabase");  
+};
+var onError = function(params){
+    console.log(params);
+    alert(params);
+};
 function callConfigureDatabase() {
     var pw = document.getElementById('pw').value;
     var confirm_pw = document.getElementById('confirm_pw').value;
@@ -7,9 +15,10 @@ function callConfigureDatabase() {
         var params = {
             dbName: document.getElementById('dbName').value,
             user: document.getElementById('user').value,
-            pw: document.getElementById('pw').value
+            pw: document.getElementById('pw').value,
+            user_id: document.getElementById("user_id").value
         };
-        AJAX_call(method, target, params, createDatabaseSuccessCallback, onError);
+        AJAX_call(method, target, params,createDatabaseSuccessCallback, onError);
     } else {
         document.getElementById('pw').value = "";
         document.getElementById('confirm_pw').value = "";

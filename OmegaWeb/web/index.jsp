@@ -17,6 +17,7 @@
         <script type="text/javascript" src="js/index.js" ></script>
     </head>
     <body>
+        <%@include file="jsp/loading.jsp" %>
         <%@include file="jsp/header.jsp" %>  
         <% if (user != null && user.getDbName() == null) { %>
         <div id="createDatabase">
@@ -26,6 +27,7 @@
             </p>
             
             <div id="configureDB_div">
+                <input type="hidden" id="user_id" value="<%= user.getId() %>"/>
                 Nombre de la base de datos: <input type="text" id="dbName" />
                 Usuario: <input type="text" id="user" />
                 Contraseña: <input type="password" id="pw" />
