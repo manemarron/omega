@@ -73,15 +73,12 @@ public class DatabaseWSClient {
     
     /**
      *
-     * @param params
+     * @param user_id
      * @throws Exception
      */
     @DELETE
-    @Consumes("application/xml")
-    @Path("deleteDatabase")
-    public void deleteDatabase(DeleteDBModel params) throws Exception {
-        int user_id = params.getUser_id();
-        
+    @Path("deleteDatabase/{user_id}")
+    public void deleteDatabase(@PathParam("user_id") int user_id) throws Exception {       
         DatabaseWS_Service service = new DatabaseWS_Service();
         DatabaseWS port = service.getDatabaseWSPort();
         if(!port.deleteDatabase(user_id))

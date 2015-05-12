@@ -46,12 +46,8 @@ function callConfigureDatabase() {
 }
 function callDeleteDatabase() {
     var method = 'DELETE';
-    var target = '/db/api/deleteDatabase';
-    var params = {
-        DeleteDBModel: {
-            user_id: document.getElementById("user_id").value
-        }};
-    AJAX_call(method, target, params, deleteDatabaseSuccessCallback, onError);
+    var target = '/db/api/deleteDatabase/'+document.getElementById("user_id").value;
+    AJAX_call(method, target, null, deleteDatabaseSuccessCallback, onError);
 }
 
 function configureDatabase() {

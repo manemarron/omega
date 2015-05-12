@@ -44,7 +44,7 @@ public class UsersConnection {
                     statement.setInt(i + 1, Integer.parseInt(params.get(i).toString()));
                 } catch (NumberFormatException nfe) {
                     statement.setString(i + 1, (String) params.get(i));
-                } catch(Exception e){
+                } catch(NullPointerException e){
                     statement.setString(i + 1, null);
                 }
             }
@@ -60,6 +60,8 @@ public class UsersConnection {
                 statement.setInt(i + 1, Integer.parseInt(params.get(i).toString()));
             } catch (NumberFormatException nfe) {
                 statement.setString(i + 1, (String) params.get(i));
+            } catch(NullPointerException npe){
+                statement.setString(i + 1, null);
             }
         }
         return statement.executeUpdate();

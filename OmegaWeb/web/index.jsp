@@ -19,15 +19,21 @@
     <body>
         <%@include file="jsp/loading.jsp" %>
         <%@include file="jsp/header.jsp" %>  
-        <% if (user != null && user.getDbName() == null) { %>
-        <div id="createDatabase">
+        <%
+            boolean b;
+            if (user != null && user.getDbName() == null) {
+                b = true;
+            } else {
+                b = false;
+            }%>
+        <div id="createDatabase" style="display:<%= b ? "block" : "none"%>">
+            <input type="hidden" id="user_id" value="<%= user.getId()%>"/>
             <p>
                 Aun no has configurado tu base de datos.<br/>
                 <button onclick="configureDatabase();" >Configura tu base de datos</button>
             </p>
-            
+
             <div id="configureDB_div">
-                <input type="hidden" id="user_id" value="<%= user.getId() %>"/>
                 Nombre de la base de datos: <input type="text" id="dbName" />
                 Usuario: <input type="text" id="user" />
                 Contraseña: <input type="password" id="pw" />
@@ -35,7 +41,9 @@
                 <button onclick="callConfigureDatabase();">Terminar</button>
             </div>
         </div>
-        <% }%>
+        <div id="database" style="display:<%= !b ? "block" : "none"%>">
+            <button onclick="callDeleteDatabase();">Borrar <%= user.getDbName() != null ? user.getDbName() : "null" %></button>
+        </div>
 
     </body>
 </html>
