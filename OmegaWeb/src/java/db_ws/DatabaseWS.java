@@ -7,6 +7,7 @@ package db_ws;
 
 import db.DatabaseAPI;
 import java.util.ArrayList;
+import javax.ejb.Stateless;
 import javax.jws.WebService;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -16,6 +17,7 @@ import javax.jws.WebParam;
  * @author andermurillo
  */
 @WebService(serviceName = "DatabaseWS")
+@Stateless
 public class DatabaseWS {
 
     @WebMethod(operationName = "createDatabase")
