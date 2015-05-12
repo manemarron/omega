@@ -16,7 +16,7 @@ dist/
 build/
 
 # Generated databases #
-db/
+OmegaWeb/db/
 
 # Auto-generated files (Configuration, Database, and WS) #
 *.wsdl
