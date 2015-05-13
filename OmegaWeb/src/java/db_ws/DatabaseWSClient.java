@@ -6,7 +6,6 @@
 package db_ws;
 
 import db_ws.models.CreateDBModel;
-import db_ws.models.DeleteDBModel;
 
 import db_ws_client.DatabaseWS_Service;
 import db_ws_client.DatabaseWS;
@@ -53,12 +52,14 @@ public class DatabaseWSClient {
     /**
      *
      * @param params
+     * @return 
      * @throws Exception
      */
     @PUT
     @Consumes(MediaType.APPLICATION_XML)
+    @Produces(MediaType.APPLICATION_XML)
     @Path("createDatabase")
-    public void createDatabase(CreateDBModel params) throws Exception {
+    public CreateDBModel createDatabase(CreateDBModel params) throws Exception {
         String dbName = params.getDbName();
         String user = params.getUser();
         String pw = params.getPw();
@@ -68,7 +69,7 @@ public class DatabaseWSClient {
         DatabaseWS port = service.getDatabaseWSPort();
         if(!port.createDatabase(dbName, user, pw, user_id))
             throw new Exception("API ERROR");
-        
+        return params;
     }
     
     /**
