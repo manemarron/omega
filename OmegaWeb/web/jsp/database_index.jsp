@@ -31,9 +31,10 @@
 <p><b>username</b>: <span id="username_span" ><%= dbUsr%></span></p>
 <p><b>password</b>: <span id="password_span" ><%= dbPw%></span></p>
 <h4 style="margin-top:40px">Tablas:</h4>
+<button onclick="document.location='<%= request.getContextPath() %>/NewTable';">Agregar una tabla</button>
 <ul id="table_list">
     <%if(tables.size()>0){for(Object table: tables) { %>
-    <li><a href="ViewTable?table=<%= table %>"><%= table %></a></li>
+    <li><a href="<%= request.getContextPath() %>/ViewTable?table=<%= table %>"><%= table %></a></li>
     <% } } else {
         out.print("No hay ninguna tabla en la base de datos");
     }%>

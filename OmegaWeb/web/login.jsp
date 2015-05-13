@@ -1,6 +1,6 @@
 <%-- 
     Document   : login
-    Created on : Apr 20, 2015, 11:54:50 PM
+    Created on : May 13, 2015, 12:47:51 AM
     Author     : manemarron
 --%>
 
@@ -10,6 +10,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Login</title>
+        <%@include file="jsp/styles_scripts.jsp" %>
         <% if(session.getAttribute("error") != null) { %>
         <script type="text/javascript">
             alert("<%= session.getAttribute("error") %>");
@@ -18,6 +19,7 @@
        session.removeAttribute("error");%>
     </head>
     <body>
+        <%@include file="jsp/header.jsp" %>
         <h1>Login</h1>
         <form action="<%= request.getContextPath()%>/login_control" method="post">
             username: <input type="text" name="username" value="" /><br/>

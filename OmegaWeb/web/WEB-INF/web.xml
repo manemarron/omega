@@ -14,15 +14,15 @@
     </servlet>
     <servlet>
         <servlet-name>login</servlet-name>
-        <jsp-file>/jsp/login.jsp</jsp-file>
+        <jsp-file>/login.jsp</jsp-file>
     </servlet>
     <servlet>
         <servlet-name>register</servlet-name>
-        <jsp-file>/jsp/register.jsp</jsp-file>
+        <jsp-file>/register.jsp</jsp-file>
     </servlet>
     <servlet>
-        <servlet-name>UpdateSession</servlet-name>
-        <servlet-class>servlets.UpdateSession</servlet-class>
+        <servlet-name>NewTable</servlet-name>
+        <jsp-file>/new_table.jsp</jsp-file>
     </servlet>
     <servlet-mapping>
         <servlet-name>SessionServlet</servlet-name>
@@ -39,8 +39,8 @@
         <url-pattern>/register</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>UpdateSession</servlet-name>
-        <url-pattern>/UpdateSession</url-pattern>
+        <servlet-name>NewTable</servlet-name>
+        <url-pattern>/NewTable</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
