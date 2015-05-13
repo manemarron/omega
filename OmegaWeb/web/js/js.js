@@ -16,10 +16,17 @@ function AJAX_call(method, target, params, onSuccess, onError) {
     }
     ajaxRequest.onreadystatechange = function () {
         if (ajaxRequest.readyState === 4) {
-            document.getElementById("loadingDiv").style.display = "none";
+            setDisplayOf("loadingDiv", "none");
             if (ajaxRequest.status >= 200 && ajaxRequest.status < 300) {
-                if (onSuccess)
-                    onSuccess();
+                if (onSuccess){
+                    var x2js = new X2JS();
+                    if(ajaxRequest.responseXML){
+                        var responseBody = x2js.xml2json(ajaxRequest.responseXML);
+                        onSuccess(responseBody);
+                    } else{
+                        onSuccess();
+                    }
+                }
             }
             else {
                 if (onError)
@@ -27,7 +34,7 @@ function AJAX_call(method, target, params, onSuccess, onError) {
             }
         }
     }
-    document.getElementById("loadingDiv").style.display = "block";
+    setDisplayOf("loadingDiv", "block");
     var context = "http://localhost:8080/OmegaWeb";
     ajaxRequest.open(method, context + target, true /*async*/);
     ajaxRequest.setRequestHeader("Content-Type", "application/xml");
@@ -38,4 +45,11 @@ function AJAX_call(method, target, params, onSuccess, onError) {
         ajaxRequest.send(params);
     } else
         ajaxRequest.send();
+}
+
+function setDisplayOf(id, display){
+    document.getElementById(id).style.display = display;
+}
+function setHtmlOf(id, html){
+    document.getElementById(id).innerHTML = html;
 }

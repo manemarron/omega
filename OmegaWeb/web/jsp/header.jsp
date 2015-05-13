@@ -5,11 +5,11 @@
 --%>
 <%@page import="users_connection.User"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<div id="headerDiv" >
+<nav id="headerDiv" >
     <h1>DataWebWizard</h1>
     <div class="account">
         Bienvenido, <%=((User)session.getAttribute("user")).getFirstName() %>
         &nbsp;&nbsp;&nbsp;
         <a href="<%= request.getContextPath() %>/logout">logout</a>
     </div>
-</div>
+</nav>

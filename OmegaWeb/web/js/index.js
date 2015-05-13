@@ -1,24 +1,28 @@
-var createDatabaseSuccessCallback = function () {
-    AJAX_call('GET', '/UpdateSession', null,
-            function () { //onSuccess
-                document.getElementById("createDatabase").style.display = "none";
-                document.getElementById("database").style.display = "block";
-                console.log("Exito: createDatabase");
-                alert("Exito: createDatabase");
-            },
-            onError
-            );
+var createDatabaseSuccessCallback = function (response) {
+    var CreateDBModel = response.CreateDBModel;
+    setHtmlOf("db_name",CreateDBModel.dbName);
+    setHtmlOf("username_span",CreateDBModel.user);
+    setHtmlOf("password_span",CreateDBModel.pw);
+    
+    setDisplayOf("createDatabase","none");
+    setDisplayOf("database","block");
+    
+    resetCreateDBInputs();
+    
+    console.log("Exito: createDatabase");
+    alert("Se creó la base de datos con éxito.");
 };
 var deleteDatabaseSuccessCallback = function () {
-    AJAX_call('GET', '/UpdateSession', null,
-            function () { //onSuccess
-                document.getElementById("createDatabase").style.display = "block";
-                document.getElementById("database").style.display = "none";
-                console.log("Exito: deleteDatabase");
-                alert("Exito: deleteDatabase");
-            },
-            onError
-            );
+    setHtmlOf("db_name","");
+    setHtmlOf("username_span","");
+    setHtmlOf("password_span","");
+    
+    setDisplayOf("createDatabase","block");
+    setDisplayOf("database","none");
+    
+    console.log("Exito: deleteDatabase");
+    alert("Se eliminó la base de datos con éxito");
+
 };
 var onError = function (params) {
     console.log(params);
@@ -46,10 +50,16 @@ function callConfigureDatabase() {
 }
 function callDeleteDatabase() {
     var method = 'DELETE';
-    var target = '/db/api/deleteDatabase/'+document.getElementById("user_id").value;
+    var target = '/db/api/deleteDatabase/' + document.getElementById("user_id").value;
     AJAX_call(method, target, null, deleteDatabaseSuccessCallback, onError);
 }
 
 function configureDatabase() {
     document.getElementById("configureDB_div").style.display = "block";
+}
+function resetCreateDBInputs() {
+    document.getElementById("dbName").value = "";
+    document.getElementById("user").value = "";
+    document.getElementById("pw").value = "";
+    document.getElementById("confirm_pw").value = "";
 }
