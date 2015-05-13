@@ -5,6 +5,7 @@
  */
 package db;
 
+import java.util.ArrayList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -107,4 +108,12 @@ public class DatabaseAPITest {
         boolean result = TestDBAPI.createTable(tableName, columnNames, columnTypes, nulls, pk);
         assertEquals(expResult, result);
     }    
+    
+    @Test
+    public void testGetAllTablesEmpty(){
+        System.out.println("getAllTables: No tables");
+        ArrayList<String> tables = TestDBAPI.getAllTablesOf(TestDBName, TestDBUser, TestDBPass);
+        ArrayList<String> exp_tables = new ArrayList<>();
+        assertEquals(exp_tables, tables);
+    }
 }

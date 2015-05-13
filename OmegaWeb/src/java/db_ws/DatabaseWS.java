@@ -60,7 +60,7 @@ public class DatabaseWS {
             String pw = userObject.getDbPw();
             DatabaseAPI dbApi = new DatabaseAPI();
             success = dbApi.deleteDatabase(dbName, user, pw);
-            if(success){
+            if (success) {
                 success = removeDatabaseFromUser(user_id);
             }
         } else {
@@ -133,6 +133,27 @@ public class DatabaseWS {
         return dbApi.select(dbName, selectColumnNames, whereColumnNames, values);
     }
 
+    @WebMethod(operationName = "getTables")
+    public ArrayList<String> getTables(
+            @WebParam(name = "user_id") int user_id) throws Exception {
+        User userObject = getRequestUser(user_id);
+        ArrayList<String> result = new ArrayList<>();
+        if (userObject != null) {
+            String dbName = userObject.getDbName();
+            String user = userObject.getDbUser();
+            String pw = userObject.getDbPw();
+            if (dbName != null && user != null && pw != null) {
+                DatabaseAPI dbApi = new DatabaseAPI();
+                result = dbApi.getAllTablesOf(dbName, user, pw);
+            } else{
+                throw new Exception("No DB");
+            }
+        } else {
+            System.err.println("userObject es nulo");
+        }
+        return result;
+    }
+
     private User getRequestUser(int user_id) {
         User userObject;
         UsersConnection connection = new UsersConnection();
@@ -180,7 +201,8 @@ public class DatabaseWS {
         }
         return success;
     }
-    private boolean removeDatabaseFromUser(int user_id){
+
+    private boolean removeDatabaseFromUser(int user_id) {
         UsersConnection connection = new UsersConnection();
         boolean success = false;
         try {

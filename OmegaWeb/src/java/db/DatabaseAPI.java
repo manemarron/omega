@@ -73,7 +73,9 @@ public class DatabaseAPI {
      */
     public boolean createDatabase(String dbName, String user, String pw) {
         File db = new File(DB_PATH + dbName);
-        if(db.exists()) return false;
+        if (db.exists()) {
+            return false;
+        }
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             connection = DriverManager.getConnection(
@@ -81,7 +83,9 @@ public class DatabaseAPI {
                     user,
                     pw);
             db = new File(DB_PATH + dbName);
-            if(db.exists()) return true;
+            if (db.exists()) {
+                return true;
+            }
         } catch (ClassNotFoundException | SQLException ex) {
             if (DEBUG) {
                 Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
@@ -193,14 +197,17 @@ public class DatabaseAPI {
     public boolean createTable(String tableName, String[] columnNames,
             String[] columnTypes, String[] nulls,
             String[] pk) {
-        if(columnNames.length == 0)
+        if (columnNames.length == 0) {
             return false;
-        if(columnNames.length != columnTypes.length || 
-                columnNames.length!=nulls.length)
+        }
+        if (columnNames.length != columnTypes.length
+                || columnNames.length != nulls.length) {
             return false;
-        if(pk.length==0 || pk.length>columnNames.length)
+        }
+        if (pk.length == 0 || pk.length > columnNames.length) {
             return false;
-        
+        }
+
         StringBuilder cad = new StringBuilder();
 
         cad.append("CREATE TABLE ").append(tableName).append(" (");
@@ -213,7 +220,9 @@ public class DatabaseAPI {
             cad.append("PRIMARY KEY (");
             for (int i = 0; i < pk.length; i++) {
                 cad.append(pk[i]);
-                if(i<pk.length-1) cad.append(", ");
+                if (i < pk.length - 1) {
+                    cad.append(", ");
+                }
             }
             cad.append(")");
         }
@@ -404,6 +413,24 @@ public class DatabaseAPI {
             }
             return null;
         }
+    }
+
+    public ArrayList<String> getAllTablesOf(String dbName, String user, String pw) {
+        ArrayList<String> result = new ArrayList<>();
+        try {
+            String query = "select t.tablename from sys.systables t, sys.sysschemas s  \n"
+                    + "where t.schemaid = s.schemaid \n"
+                    + "and t.tabletype = 'T' \n"
+                    + "order by t.tablename";
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+            while (rs.next()) {
+                result.add(rs.getString("tablename"));
+            }
+        } catch (SQLException sqlex) {
+
+        }
+        return result;
     }
 
     private String currentDBPath() {

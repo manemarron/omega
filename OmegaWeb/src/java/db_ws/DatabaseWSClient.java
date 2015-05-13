@@ -5,10 +5,12 @@
  */
 package db_ws;
 
+import db_ws.models.AllTablesModel;
 import db_ws.models.CreateDBModel;
 
 import db_ws_client.DatabaseWS_Service;
 import db_ws_client.DatabaseWS;
+import java.util.ArrayList;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -85,5 +87,16 @@ public class DatabaseWSClient {
         if(!port.deleteDatabase(user_id))
             throw new Exception("API ERROR");
         
+    }
+    
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    @Path("getTables/{user_id}")
+    public AllTablesModel getTables(@PathParam("user_id") int user_id) {
+        DatabaseWS_Service service = new DatabaseWS_Service();
+        DatabaseWS port = service.getDatabaseWSPort();
+        AllTablesModel model = new AllTablesModel();
+        model.setTables((ArrayList<String>) port.getTables(user_id));
+        return model;
     }
 }
