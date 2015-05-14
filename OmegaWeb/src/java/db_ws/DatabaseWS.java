@@ -51,43 +51,58 @@ public class DatabaseWS {
     }
 
     @WebMethod(operationName = "createTable")
-    public boolean createTable(@WebParam(name = "tableName") String dbName,
+    public boolean createTable(@WebParam(name = "dbName") String dbName,
+                               @WebParam(name = "user") String user,
+                               @WebParam(name = "pw") String pw,
+                               @WebParam(name = "tableName") String tableName,
                                @WebParam(name = "columnNames") String[] columnNames,
                                @WebParam(name = "columnTypes") String[] columnTypes,
                                @WebParam(name = "nulls") String[] nulls,
                                @WebParam(name = "pk") String[] pk) {
         DatabaseAPI dbApi = new DatabaseAPI();
-        return dbApi.createTable(dbName, columnNames, columnTypes, nulls, pk);
+        return dbApi.createTable(dbName, user, pw, tableName, columnNames, columnTypes, nulls, pk);
     }
 
     @WebMethod(operationName = "deleteTable")
-    public boolean deleteTable(@WebParam(name = "tableName") String dbName) {
+    public boolean deleteTable(@WebParam(name = "dbName") String dbName,
+                               @WebParam(name = "user") String user,
+                               @WebParam(name = "pw") String pw,
+                               @WebParam(name = "tableName") String tableName) {
         DatabaseAPI dbApi = new DatabaseAPI();
-        return dbApi.deleteTable(dbName);
+        return dbApi.deleteTable(dbName, user, pw, tableName);
     }
 
     @WebMethod(operationName = "addRow")
-    public boolean addRow(@WebParam(name = "tableName") String dbName,
+    public boolean addRow(@WebParam(name = "dbName") String dbName,
+                          @WebParam(name = "user") String user,
+                          @WebParam(name = "pw") String pw,
+                          @WebParam(name = "tableName") String tableName,
                           @WebParam(name = "values") String[] values) {
         DatabaseAPI dbApi = new DatabaseAPI();
-        return dbApi.addRow(dbName, values);
+        return dbApi.addRow(dbName, user, pw, tableName, values);
     }
 
     @WebMethod(operationName = "deleteRow")
-    public boolean deleteRow(@WebParam(name = "tableName") String dbName,
+    public boolean deleteRow(@WebParam(name = "dbName") String dbName,
+                             @WebParam(name = "user") String user,
+                             @WebParam(name = "pw") String pw,
+                             @WebParam(name = "tableName") String tableName,
                              @WebParam(name = "columnNames") String[] columnNames,
                              @WebParam(name = "values") String[] values) {
         DatabaseAPI dbApi = new DatabaseAPI();
-        return dbApi.deleteRow(dbName, columnNames, values);
+        return dbApi.deleteRow(dbName, user, pw, tableName, columnNames, values);
     }
 
     @WebMethod(operationName = "select")
     public ArrayList<ArrayList<String>> select(
-            @WebParam(name = "tableName") String dbName,
+            @WebParam(name = "dbName") String dbName,
+            @WebParam(name = "user") String user,
+            @WebParam(name = "pw") String pw,
+            @WebParam(name = "tableName") String tableName,
             @WebParam(name = "selectColumnNames") String[] selectColumnNames,
             @WebParam(name = "whereColumnNames") String[] whereColumnNames,
             @WebParam(name = "values") String[] values) {
         DatabaseAPI dbApi = new DatabaseAPI();
-        return dbApi.select(dbName, selectColumnNames, whereColumnNames, values);
+        return dbApi.select(dbName, user, pw, tableName, selectColumnNames, whereColumnNames, values);
     }
 }
