@@ -6,221 +6,103 @@
 package db_ws;
 
 import db.DatabaseAPI;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import javax.ejb.Stateless;
 import javax.jws.WebService;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
-import users_connection.User;
-import users_connection.UsersConnection;
 
 /**
  *
  * @author andermurillo
  */
 @WebService(serviceName = "DatabaseWS")
-@Stateless
 public class DatabaseWS {
 
     @WebMethod(operationName = "createDatabase")
     public boolean createDatabase(@WebParam(name = "dbName") String dbName,
-            @WebParam(name = "user") String user,
-            @WebParam(name = "pw") String pw,
-            @WebParam(name = "user_id") int user_id) {
-        User userObject = getRequestUser(user_id);
-        boolean success = false;
-        if (userObject != null) {
-            if (userObject.getDbName() == null) {
-                DatabaseAPI dbApi = new DatabaseAPI();
-                success = dbApi.createDatabase(dbName, user, pw);
-                if (success) {
-                    success = setDatabaseToUser(user_id, dbName, user, pw);
-                }
-            } else {
-                System.out.println("El usuario ya tiene BD");
-            }
-        } else {
-            System.err.println("userObject es nulo");
-        }
-        return success;
+                                  @WebParam(name = "user") String user,
+                                  @WebParam(name = "pw") String pw) {
+        DatabaseAPI dbApi = new DatabaseAPI();
+        return dbApi.createDatabase(dbName, user, pw);
     }
 
     @WebMethod(operationName = "deleteDatabase")
-    public boolean deleteDatabase(@WebParam(name = "user_id") int user_id) {
-        User userObject = getRequestUser(user_id);
-        boolean success = false;
-        if (userObject != null) {
-            String dbName = userObject.getDbName();
-            String user = userObject.getDbUser();
-            String pw = userObject.getDbPw();
-            DatabaseAPI dbApi = new DatabaseAPI();
-            success = dbApi.deleteDatabase(dbName, user, pw);
-            if (success) {
-                success = removeDatabaseFromUser(user_id);
-            }
-        } else {
-            System.err.println("userObject es nulo");
-        }
-        return success;
+    public boolean deleteDatabase(@WebParam(name = "dbName") String dbName,
+                                  @WebParam(name = "user") String user,
+                                  @WebParam(name = "pw") String pw) {
+        DatabaseAPI dbApi = new DatabaseAPI();
+        return dbApi.deleteDatabase(dbName, user, pw);
     }
 
     @WebMethod(operationName = "openConnection")
     public boolean openConnection(@WebParam(name = "dbName") String dbName,
-            @WebParam(name = "user") String user,
-            @WebParam(name = "pw") String pw
-    ) {
+                                  @WebParam(name = "user") String user,
+                                  @WebParam(name = "pw") String pw) {
         DatabaseAPI dbApi = new DatabaseAPI();
         return dbApi.openConnection(dbName, user, pw);
     }
 
     @WebMethod(operationName = "closeConnection")
     public boolean closeConnection(@WebParam(name = "dbName") String dbName,
-            @WebParam(name = "user") String user,
-            @WebParam(name = "pw") String pw
-    ) {
+                                   @WebParam(name = "user") String user,
+                                   @WebParam(name = "pw") String pw) {
         DatabaseAPI dbApi = new DatabaseAPI();
         return dbApi.closeConnection(dbName, user, pw);
     }
 
     @WebMethod(operationName = "createTable")
-    public boolean createTable(@WebParam(name = "tableName") String dbName,
-            @WebParam(name = "columnNames") String[] columnNames,
-            @WebParam(name = "columnTypes") String[] columnTypes,
-            @WebParam(name = "nulls") String[] nulls,
-            @WebParam(name = "pk") String[] pk
-    ) {
+    public boolean createTable(@WebParam(name = "dbName") String dbName,
+                               @WebParam(name = "user") String user,
+                               @WebParam(name = "pw") String pw,
+                               @WebParam(name = "tableName") String tableName,
+                               @WebParam(name = "columnNames") String[] columnNames,
+                               @WebParam(name = "columnTypes") String[] columnTypes,
+                               @WebParam(name = "nulls") String[] nulls,
+                               @WebParam(name = "pk") String[] pk) {
         DatabaseAPI dbApi = new DatabaseAPI();
-        return dbApi.createTable(dbName, columnNames, columnTypes, nulls, pk);
+        return dbApi.createTable(dbName, user, pw, tableName, columnNames, columnTypes, nulls, pk);
     }
 
     @WebMethod(operationName = "deleteTable")
-    public boolean deleteTable(@WebParam(name = "tableName") String dbName
-    ) {
+    public boolean deleteTable(@WebParam(name = "dbName") String dbName,
+                               @WebParam(name = "user") String user,
+                               @WebParam(name = "pw") String pw,
+                               @WebParam(name = "tableName") String tableName) {
         DatabaseAPI dbApi = new DatabaseAPI();
-        return dbApi.deleteTable(dbName);
+        return dbApi.deleteTable(dbName, user, pw, tableName);
     }
 
     @WebMethod(operationName = "addRow")
-    public boolean addRow(@WebParam(name = "tableName") String dbName,
-            @WebParam(name = "values") String[] values
-    ) {
+    public boolean addRow(@WebParam(name = "dbName") String dbName,
+                          @WebParam(name = "user") String user,
+                          @WebParam(name = "pw") String pw,
+                          @WebParam(name = "tableName") String tableName,
+                          @WebParam(name = "values") String[] values) {
         DatabaseAPI dbApi = new DatabaseAPI();
-        return dbApi.addRow(dbName, values);
+        return dbApi.addRow(dbName, user, pw, tableName, values);
     }
 
     @WebMethod(operationName = "deleteRow")
-    public boolean deleteRow(@WebParam(name = "tableName") String dbName,
-            @WebParam(name = "columnNames") String[] columnNames,
-            @WebParam(name = "values") String[] values
-    ) {
+    public boolean deleteRow(@WebParam(name = "dbName") String dbName,
+                             @WebParam(name = "user") String user,
+                             @WebParam(name = "pw") String pw,
+                             @WebParam(name = "tableName") String tableName,
+                             @WebParam(name = "columnNames") String[] columnNames,
+                             @WebParam(name = "values") String[] values) {
         DatabaseAPI dbApi = new DatabaseAPI();
-        return dbApi.deleteRow(dbName, columnNames, values);
+        return dbApi.deleteRow(dbName, user, pw, tableName, columnNames, values);
     }
 
     @WebMethod(operationName = "select")
     public ArrayList<ArrayList<String>> select(
-            @WebParam(name = "tableName") String dbName,
+            @WebParam(name = "dbName") String dbName,
+            @WebParam(name = "user") String user,
+            @WebParam(name = "pw") String pw,
+            @WebParam(name = "tableName") String tableName,
             @WebParam(name = "selectColumnNames") String[] selectColumnNames,
             @WebParam(name = "whereColumnNames") String[] whereColumnNames,
-            @WebParam(name = "values") String[] values
-    ) {
+            @WebParam(name = "values") String[] values) {
         DatabaseAPI dbApi = new DatabaseAPI();
-        return dbApi.select(dbName, selectColumnNames, whereColumnNames, values);
-    }
-
-    @WebMethod(operationName = "getTables")
-    public ArrayList<String> getTables(
-            @WebParam(name = "user_id") int user_id) throws Exception {
-        User userObject = getRequestUser(user_id);
-        ArrayList<String> result = new ArrayList<>();
-        if (userObject != null) {
-            String dbName = userObject.getDbName();
-            String user = userObject.getDbUser();
-            String pw = userObject.getDbPw();
-            if (dbName != null && user != null && pw != null) {
-                DatabaseAPI dbApi = new DatabaseAPI();
-                result = dbApi.getAllTablesOf(dbName, user, pw);
-            } else{
-                throw new Exception("No DB");
-            }
-        } else {
-            System.err.println("userObject es nulo");
-        }
-        return result;
-    }
-
-    private User getRequestUser(int user_id) {
-        User userObject;
-        UsersConnection connection = new UsersConnection();
-        try {
-            connection.setConnection();
-            String query = "SELECT * FROM USERS WHERE ID=?";
-            List<?> params = Arrays.asList(new Integer[]{user_id});
-            ResultSet rs = connection.getResultSet(query, params);
-            if (rs.next()) {
-                userObject = User.setFromResultSet(rs);
-            } else {
-                userObject = null;
-            }
-        } catch (SQLException sqlEx) {
-            userObject = null;
-            System.err.println(sqlEx.getMessage());
-        } finally {
-            try {
-                connection.closeConnection();
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-            }
-        }
-        return userObject;
-    }
-
-    private boolean setDatabaseToUser(int user_id, String dbName, String user, String pw) {
-        UsersConnection connection = new UsersConnection();
-        boolean success = false;
-        try {
-            connection.setConnection();
-            String query = "UPDATE USERS SET DB_NAME=?,DB_USER=?,DB_PASSWORD=? WHERE ID=?";
-            List<?> params = Arrays.asList(new Object[]{dbName, user, pw, user_id});
-            if (connection.executeQuery(query, params) > 0) {
-                success = true;
-            }
-        } catch (SQLException sqlEx) {
-            System.err.println(sqlEx.getMessage());
-        } finally {
-            try {
-                connection.closeConnection();
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-            }
-        }
-        return success;
-    }
-
-    private boolean removeDatabaseFromUser(int user_id) {
-        UsersConnection connection = new UsersConnection();
-        boolean success = false;
-        try {
-            connection.setConnection();
-            String query = "UPDATE USERS SET DB_NAME=?,DB_USER=?,DB_PASSWORD=? WHERE ID=?";
-            List<?> params = Arrays.asList(new Object[]{null, null, null, user_id});
-            if (connection.executeQuery(query, params) > 0) {
-                success = true;
-            }
-        } catch (SQLException sqlEx) {
-            System.err.println(sqlEx.getMessage());
-        } finally {
-            try {
-                connection.closeConnection();
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-            }
-        }
-        return success;
+        return dbApi.select(dbName, user, pw, tableName, selectColumnNames, whereColumnNames, values);
     }
 }

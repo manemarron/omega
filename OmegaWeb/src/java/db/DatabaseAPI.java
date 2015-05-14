@@ -51,22 +51,22 @@ public class DatabaseAPI {
 
         System.out.println("Databases location: " + DB_PATH);
 
-        System.out.println("CREATE DB: " + api.createDatabase("DB_NAME", "root", "admin"));
-        System.out.println("OPEN CONNECTON: " + api.openConnection("DB_NAME", "root", "admin"));
-        System.out.println("CREATE TABLE: " + api.createTable("T1", names, types, nulls, pk));
-        System.out.println("ADD ROW: " + api.addRow("T1", values));
-        System.out.println("ADD ROW: " + api.addRow("T1", values2));
-        System.out.println("SELECT: " + api.select("T1", snames, wnames, svalues));
-        System.out.println("DELETE ROW: " + api.deleteRow("T1", delCols, delValues));
-        System.out.println("DELETE TABLE: " + api.deleteTable("T1"));
-        System.out.println("CLOSE CONNECTION: " + api.closeConnection("DB_NAME", "root", "admin"));
-        System.out.println("DELETE DB: " + api.deleteDatabase("DB_NAME", "root", "admin"));
+//        System.out.println("CREATE DB: " + api.createDatabase("DB_NAME", "root", "admin"));
+//        System.out.println("OPEN CONNECTON: " + api.openConnection("DB_NAME", "root", "admin"));
+//        System.out.println("CREATE TABLE: " + api.createTable("DB_NAME", "root", "admin", "T1", names, types, nulls, pk));
+//        System.out.println("ADD ROW: " + api.addRow("DB_NAME", "root", "admin", "T1", values));
+//        System.out.println("ADD ROW: " + api.addRow("DB_NAME", "root", "admin", "T1", values2));
+//        System.out.println("SELECT: " + api.select("DB_NAME", "root", "admin", "T1", snames, wnames, svalues));
+//        System.out.println("DELETE ROW: " + api.deleteRow("DB_NAME", "root", "admin", "T1", delCols, delValues));
+//        System.out.println("DELETE TABLE: " + api.deleteTable("DB_NAME", "root", "admin", "T1"));
+//        System.out.println("CLOSE CONNECTION: " + api.closeConnection("DB_NAME", "root", "admin"));
+//        System.out.println("DELETE DB: " + api.deleteDatabase("DB_NAME", "root", "admin"));
     }
 
     /**
      * Creates a new database with the provided parameters
      *
-     * @param dbName : Name of the new database
+     * @param dbName : Name of the database
      * @param user : Username of the database
      * @param pw : Password for that user
      * @return : True if successful, False otherwise
@@ -134,7 +134,7 @@ public class DatabaseAPI {
     /**
      * Creates a connection with the provided parameters
      *
-     * @param dbName : Name of the new database
+     * @param dbName : Name of the database
      * @param user : Username of the database
      * @param pw : Password for that user
      * @return : True if successful, False otherwise
@@ -158,7 +158,7 @@ public class DatabaseAPI {
     /**
      * Closes the connection associated to the provided parameters
      *
-     * @param dbName : Name of the new database
+     * @param dbName : Name of the database
      * @param user : Username of the database
      * @param pw : Password for that user
      * @return : True if successful, False otherwise
@@ -174,7 +174,7 @@ public class DatabaseAPI {
         } catch (ClassNotFoundException | SQLException ex) {
 
             if (ex.getClass().equals(SQLNonTransientConnectionException.class)) {
-                System.out.println("Successful shutdown");
+                //System.out.println("Successfull shutdown");
                 return true;
             } else if (DEBUG) {
                 Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
@@ -187,6 +187,9 @@ public class DatabaseAPI {
      * Creates a new table on the current database (determined by the
      * connection) by receiving a name and 4 lists:
      *
+     * @param dbName : Name of the database
+     * @param user : Username of the database
+     * @param pw : Password for that user
      * @param tableName : Name of the new table
      * @param columnNames : Names of the columns
      * @param columnTypes : Types of the columns
@@ -194,49 +197,47 @@ public class DatabaseAPI {
      * @param pk : The columns to use as primary key
      * @return : True if successful, False otherwise
      */
-    public boolean createTable(String tableName, String[] columnNames,
+    public boolean createTable(String dbName, String user, String pw,
+            String tableName, String[] columnNames,
             String[] columnTypes, String[] nulls,
             String[] pk) {
-        if (columnNames.length == 0) {
-            return false;
-        }
-        if (columnNames.length != columnTypes.length
-                || columnNames.length != nulls.length) {
-            return false;
-        }
-        if (pk.length == 0 || pk.length > columnNames.length) {
-            return false;
-        }
 
-        StringBuilder cad = new StringBuilder();
+        if (openConnection(dbName, user, pw)) {
 
-        cad.append("CREATE TABLE ").append(tableName).append(" (");
+            StringBuilder cad = new StringBuilder();
 
-        for (int i = 0; i < columnNames.length; i++) {
-            cad.append(columnNames[i]).append(" ").append(columnTypes[i]).append(" ").append(nulls[i]).append(", ");
-        }
+            cad.append("CREATE TABLE ").append(tableName).append(" (");
 
-        if (pk.length > 0) {
-            cad.append("PRIMARY KEY (");
-            for (int i = 0; i < pk.length; i++) {
-                cad.append(pk[i]);
-                if (i < pk.length - 1) {
-                    cad.append(", ");
+            for (int i = 0; i < columnNames.length; i++) {
+                cad.append(columnNames[i]).append(" ").append(columnTypes[i]).append(" ").append(nulls[i]).append(", ");
+            }
+
+            if (pk.length > 0) {
+                cad.append("PRIMARY KEY (");
+                for (int i = 0; i < pk.length; i++) {
+                    cad.append(pk[i]);
+                    if (i < pk.length - 1) {
+                        cad.append(", ");
+                    }
                 }
+                cad.append(")");
             }
+
             cad.append(")");
-        }
 
-        cad.append(")");
-
-        try {
-            Statement stmt = connection.createStatement();
-            stmt.executeUpdate(cad.toString());
-            return true;
-        } catch (SQLException ex) {
-            if (DEBUG) {
-                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                Statement stmt = connection.createStatement();
+                stmt.executeUpdate(cad.toString());
+                closeConnection(dbName, user, pw);
+                return true;
+            } catch (SQLException ex) {
+                if (DEBUG) {
+                    Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                closeConnection(dbName, user, pw);
+                return false;
             }
+        } else {
             return false;
         }
     }
@@ -244,18 +245,28 @@ public class DatabaseAPI {
     /**
      * Deletes a table given its name
      *
+     * @param dbName : Name of the database
+     * @param user : Username of the database
+     * @param pw : Password for that user
      * @param tableName : The name of the table
      * @return : True if successful, False otherwise
      */
-    public boolean deleteTable(String tableName) {
-        try {
-            Statement stmt = connection.createStatement();
-            stmt.executeUpdate("DROP TABLE " + tableName);
-            return true;
-        } catch (SQLException ex) {
-            if (DEBUG) {
-                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+    public boolean deleteTable(String dbName, String user, String pw,
+            String tableName) {
+        if (openConnection(dbName, user, pw)) {
+            try {
+                Statement stmt = connection.createStatement();
+                stmt.executeUpdate("DROP TABLE " + tableName);
+                closeConnection(dbName, user, pw);
+                return true;
+            } catch (SQLException ex) {
+                if (DEBUG) {
+                    Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                closeConnection(dbName, user, pw);
+                return false;
             }
+        } else {
             return false;
         }
     }
@@ -267,36 +278,46 @@ public class DatabaseAPI {
     /**
      * Inserts a new registry into the selected table
      *
+     * @param dbName : Name of the database
+     * @param user : Username of the database
+     * @param pw : Password for that user
      * @param tableName : Name of the table
      * @param values : Values to be inserted
      * @return : True if successful, False otherwise
      */
-    public boolean addRow(String tableName, String[] values) {
+    public boolean addRow(String dbName, String user, String pw,
+            String tableName, String[] values) {
 
-        StringBuilder cad = new StringBuilder();
-        cad.append("INSERT INTO ").append(tableName).append(" VALUES (");
-
-        for (int i = 0; i < values.length; i++) {
-            cad.append("?,");
-        }
-
-        String insertString = cad.toString();
-        insertString = insertString.substring(0, insertString.length() - 1) + ")";
-
-        try {
-
-            PreparedStatement psInsert = connection.prepareStatement(insertString);
+        if (openConnection(dbName, user, pw)) {
+            StringBuilder cad = new StringBuilder();
+            cad.append("INSERT INTO ").append(tableName).append(" VALUES (");
 
             for (int i = 0; i < values.length; i++) {
-                psInsert.setString(i + 1, values[i]);
+                cad.append("?,");
             }
 
-            psInsert.executeUpdate();
-            return true;
-        } catch (SQLException ex) {
-            if (DEBUG) {
-                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            String insertString = cad.toString();
+            insertString = insertString.substring(0, insertString.length() - 1) + ")";
+
+            try {
+
+                PreparedStatement psInsert = connection.prepareStatement(insertString);
+
+                for (int i = 0; i < values.length; i++) {
+                    psInsert.setString(i + 1, values[i]);
+                }
+
+                psInsert.executeUpdate();
+                closeConnection(dbName, user, pw);
+                return true;
+            } catch (SQLException ex) {
+                if (DEBUG) {
+                    Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                closeConnection(dbName, user, pw);
+                return false;
             }
+        } else {
             return false;
         }
     }
@@ -305,47 +326,56 @@ public class DatabaseAPI {
      * Receives the name of a table and deletes all rows satisfying the WHERE
      * clause composed of (ColumnName - Value) elements
      *
+     * @param dbName : Name of the database
+     * @param user : Username of the database
+     * @param pw : Password for that user
      * @param tableName : Name of the table
      * @param columnNames : Names of the columns to compare
      * @param values : Values of the columns being compared
      * @return : True if successful, False otherwise
      */
-    public boolean deleteRow(String tableName, String[] columnNames,
+    public boolean deleteRow(String dbName, String user, String pw,
+            String tableName, String[] columnNames,
             String[] values) {
+        if (openConnection(dbName, user, pw)) {
+            StringBuilder cad = new StringBuilder();
+            cad.append("DELETE FROM ").append(tableName).append(" WHERE ");
 
-        StringBuilder cad = new StringBuilder();
-        cad.append("DELETE FROM ").append(tableName).append(" WHERE ");
+            for (int i = 0; i < values.length; i++) {
 
-        for (int i = 0; i < values.length; i++) {
+                try { // If column has an integer value
+                    int valueInt = Integer.parseInt(values[i]);
+                    cad.append(columnNames[i]).append(" = ").append(valueInt).append("");
+                } catch (Exception e1) {
 
-            try { // If column has an integer value
-                int valueInt = Integer.parseInt(values[i]);
-                cad.append(columnNames[i]).append(" = ").append(valueInt).append("");
-            } catch (Exception e1) {
+                    try { // If column has a decimal value
+                        double valueFloat = Double.parseDouble(values[i]);
+                        cad.append(columnNames[i]).append(" = ").append(valueFloat).append("");
+                    } catch (Exception e2) { // Column is not a number
+                        cad.append(columnNames[i]).append(" = '").append(values[i]).append("'");
+                    }
+                }
 
-                try { // If column has a decimal value
-                    double valueFloat = Double.parseDouble(values[i]);
-                    cad.append(columnNames[i]).append(" = ").append(valueFloat).append("");
-                } catch (Exception e2) { // Column is not a number
-                    cad.append(columnNames[i]).append(" = '").append(values[i]).append("'");
+                if (i < values.length - 1) { // Appends AND clause for all values except the last one
+                    cad.append(" AND ");
                 }
             }
 
-            if (i < values.length - 1) { // Appends AND clause for all values except the last one
-                cad.append(" AND ");
-            }
-        }
+            String deleteString = cad.toString();
 
-        String deleteString = cad.toString();
-
-        try {
-            Statement stmt = connection.createStatement();
-            stmt.executeUpdate(deleteString);
-            return true;
-        } catch (SQLException ex) {
-            if (DEBUG) {
-                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                Statement stmt = connection.createStatement();
+                stmt.executeUpdate(deleteString);
+                closeConnection(dbName, user, pw);
+                return true;
+            } catch (SQLException ex) {
+                if (DEBUG) {
+                    Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                closeConnection(dbName, user, pw);
+                return false;
             }
+        } else {
             return false;
         }
     }
@@ -354,63 +384,73 @@ public class DatabaseAPI {
      * Receives the name of a table and selects all rows satisfying the WHERE
      * clause composed of (ColumnName - Value) elements.
      *
+     * @param dbName : Name of the database
+     * @param user : Username of the database
+     * @param pw : Password for that user
      * @param tableName : Name of the table
      * @param selectColumnNames : Name of the columns to return
      * @param whereColumnNames : Names of the columns to compare
      * @param values : Values of the columns being compared
      * @return : 2-D ArrayList with results, null if exception
      */
-    public ArrayList<ArrayList<String>> select(String tableName,
+    public ArrayList<ArrayList<String>> select(String dbName, String user,
+            String pw, String tableName,
             String[] selectColumnNames,
             String[] whereColumnNames,
             String[] values) {
 
-        StringBuilder cad = new StringBuilder();
-        cad.append("SELECT ").append(join(selectColumnNames, ",")).append(" FROM ").
-                append(tableName).append(" WHERE ");
+        if (openConnection(dbName, user, pw)) {
+            StringBuilder cad = new StringBuilder();
+            cad.append("SELECT ").append(join(selectColumnNames, ",")).append(" FROM ").
+                    append(tableName).append(" WHERE ");
 
-        for (int i = 0; i < values.length; i++) {
+            for (int i = 0; i < values.length; i++) {
 
-            try { // If column has an integer value
-                int valueInt = Integer.parseInt(values[i]);
-                cad.append(whereColumnNames[i]).append(" = ").append(valueInt).append("");
-            } catch (Exception e1) {
+                try { // If column has an integer value
+                    int valueInt = Integer.parseInt(values[i]);
+                    cad.append(whereColumnNames[i]).append(" = ").append(valueInt).append("");
+                } catch (Exception e1) {
 
-                try { // If column has a decimal value
-                    double valueFloat = Double.parseDouble(values[i]);
-                    cad.append(whereColumnNames[i]).append(" = ").append(valueFloat).append("");
-                } catch (Exception e2) { // Column is not a number
-                    cad.append(whereColumnNames[i]).append(" = '").append(values[i]).append("'");
+                    try { // If column has a decimal value
+                        double valueFloat = Double.parseDouble(values[i]);
+                        cad.append(whereColumnNames[i]).append(" = ").append(valueFloat).append("");
+                    } catch (Exception e2) { // Column is not a number
+                        cad.append(whereColumnNames[i]).append(" = '").append(values[i]).append("'");
+                    }
+                }
+
+                if (i < values.length - 1) { // Appends AND clause for all values except the last one
+                    cad.append(" AND ");
                 }
             }
 
-            if (i < values.length - 1) { // Appends AND clause for all values except the last one
-                cad.append(" AND ");
-            }
-        }
+            String createString = cad.toString();
 
-        String createString = cad.toString();
+            try {
+                Statement stmt = connection.createStatement();
+                ResultSet rs = stmt.executeQuery(createString);
 
-        try {
-            Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery(createString);
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int columnsNumber = rsmd.getColumnCount();
 
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int columnsNumber = rsmd.getColumnCount();
-
-            ArrayList<ArrayList<String>> results = new ArrayList();
-            while (rs.next()) {
-                ArrayList<String> row = new ArrayList();
-                for (int i = 1; i <= columnsNumber; i++) {
-                    row.add(rs.getString(i)); // Index starts at 1
+                ArrayList<ArrayList<String>> results = new ArrayList();
+                while (rs.next()) {
+                    ArrayList<String> row = new ArrayList();
+                    for (int i = 1; i <= columnsNumber; i++) {
+                        row.add(rs.getString(i)); // Index starts at 1
+                    }
+                    results.add(row);
                 }
-                results.add(row);
+                closeConnection(dbName, user, pw);
+                return results;
+            } catch (SQLException ex) {
+                if (DEBUG) {
+                    Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                closeConnection(dbName, user, pw);
+                return null;
             }
-            return results;
-        } catch (SQLException ex) {
-            if (DEBUG) {
-                Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        } else {
             return null;
         }
     }
