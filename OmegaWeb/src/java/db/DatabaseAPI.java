@@ -210,10 +210,7 @@ public class DatabaseAPI {
 
             if (columnNames.length > 0) {
                 for (int i = 0; i < columnNames.length; i++) {
-                    cad.append(columnNames[i]).append(" ").append(columnTypes[i]).append(" ").append(nulls[i]);
-                    if(i<columnNames.length-1){
-                        cad.append(", ");
-                    }
+                    cad.append(columnNames[i]).append(" ").append(columnTypes[i]).append(" ").append(nulls[i]).append(", ");
                 }
             }
 

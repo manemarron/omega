@@ -6,6 +6,9 @@
 package db_ws.models;
 
 import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -17,24 +20,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "AddTableModel")
 public class AddTableModel {
     private String table_name;
-    private ArrayList<Column> columns;
+    private List<Column> columns;
 
     public String getTable_name() {
         return table_name;
     }
-
     @XmlElement
     public void setTable_name(String table_name) {
         this.table_name = table_name;
     }
     
-    public ArrayList<Column> getColumns() {
+    public List<Column> getColumns() {
         return columns;
     }
-
-    @XmlElement
     @XmlElementWrapper(name="columns")
-    public void setColumns(ArrayList<Column> columns) {
+    @XmlElement(name="column")
+    public void setColumns(List<Column> columns) {
         this.columns = columns;
     }
     
@@ -75,4 +76,16 @@ public class AddTableModel {
         }
         return pks;
     }
+
+    @Override
+    public String toString() {
+        String s = "AddTableModel{" + "table_name=" + table_name + ",columns=";
+        String aux = "";
+        for(Column c:columns){
+            aux+=String.format("{%s},", c.toString());
+        }
+        s+=String.format("[%s]", aux);
+        return s;
+    }
+    
 }

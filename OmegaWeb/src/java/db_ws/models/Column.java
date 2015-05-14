@@ -8,26 +8,27 @@ package db_ws.models;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 
 /**
  *
  * @author manemarron
  */
-@XmlType(propOrder = {"name","type","size","nullable","pk"})
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Column {
+    @XmlElement
     private String name;
+    @XmlElement
     private String type;
+    @XmlElement
     private int size;
+    @XmlElement
     private boolean nullable;
+    @XmlElement
     private boolean pk;
 
     public String getName() {
         return name;
     }
-
-    @XmlElement
     public void setName(String name) {
         this.name = name;
     }
@@ -35,8 +36,6 @@ public class Column {
     public String getType() {
         return type;
     }
-
-    @XmlElement
     public void setType(String type) {
         this.type = type;
     }
@@ -44,8 +43,6 @@ public class Column {
     public int getSize() {
         return size;
     }
-
-    @XmlElement
     public void setSize(int size) {
         this.size = size;
     }
@@ -53,8 +50,6 @@ public class Column {
     public boolean isNullable() {
         return nullable;
     }
-
-    @XmlElement
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
     }
@@ -62,10 +57,13 @@ public class Column {
     public boolean isPk() {
         return pk;
     }
-
-    @XmlElement
     public void setPk(boolean pk) {
         this.pk = pk;
+    }
+
+    @Override
+    public String toString() {
+        return "Column{" + "name=" + name + ", type=" + type + ", size=" + size + ", nullable=" + nullable + ", pk=" + pk + '}';
     }
     
     

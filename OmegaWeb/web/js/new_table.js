@@ -170,8 +170,9 @@ function validateForm() {
 
     }
 
-    var params = parseQuerytoJSON();
-    params["table_name"] = table_name;
+    var model = {table_name: table_name};
+    model.columns = parseQuerytoJSON();
+    var params = {AddTableModel: model};
     console.log(params);
     AJAX_call("PUT", "/db/api/addTable", params,
             function () { //onSuccess
@@ -181,31 +182,28 @@ function validateForm() {
     return false;
 }
 function parseQuerytoJSON() {
-    var result = {columns: []};
+    var result = [];
     var columns = document.getElementsByClassName("columna");
     if (columns.length === 0) {
         alert("Debe haber al menos una columna");
         return false;
     }
     for (var i = 0; i < columns.length; i++) {
-        var object = {};
+        var object = {column: {}};
         var column = columns[i];
-        var inputs = column.getElementsByTagName("input");
-        var selects = column.getElementsByTagName("select");
-        for (var j = 0; j < selects.length; j++) {
-            object[selects[j].className] = selects[j].value;
-        }
-        for (var j = 0; j < inputs.length; j++) {
-            if (inputs[j].getAttribute("type") === "checkbox") {
-                object[inputs[j].className] = inputs[j].checked;
-            } else if (inputs[j].getAttribute("type") === "number" &&
-                    inputs[j].value !== '') {
-                object[inputs[j].className] = parseInt(inputs[j].value);
-            } else {
-                object[inputs[j].className] = inputs[j].value;
-            }
-        }
-        result.columns.push(object);
+        var name = column.getElementsByClassName("name")[0];
+        object.column.name = name.value;
+        var type = column.getElementsByClassName("type")[0];
+        object.column.type = type.value;
+        var size = column.getElementsByClassName("size")[0];
+        object.column.size = size.value; 
+        if(object.column.size !== '') object.column.size = parseInt(object.column.size);
+        else object.column.size = 0;
+        var nullable = column.getElementsByClassName("nullable")[0];
+        object.column.nullable = nullable.checked;
+        var pk = column.getElementsByClassName("pk")[0];
+        object.column.pk = pk.checked;
+        result.push(object);
     }
     return result;
 }
