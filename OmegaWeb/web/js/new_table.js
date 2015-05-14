@@ -171,12 +171,12 @@ function validateForm() {
     }
 
     var params = parseQuerytoJSON();
+    params["table_name"] = table_name;
     console.log(params);
-    AJAX_call("POST", "/db/api/addTable", params,
+    AJAX_call("PUT", "/db/api/addTable", params,
             function () { //onSuccess
                 document.location = "/OmegaWeb";
-            },
-            onError()
+            }
             )
     return false;
 }
@@ -193,7 +193,7 @@ function parseQuerytoJSON() {
         var inputs = column.getElementsByTagName("input");
         var selects = column.getElementsByTagName("select");
         for (var j = 0; j < selects.length; j++) {
-            object["column_type"] = selects[j].value;
+            object[selects[j].className] = selects[j].value;
         }
         for (var j = 0; j < inputs.length; j++) {
             if (inputs[j].getAttribute("type") === "checkbox") {

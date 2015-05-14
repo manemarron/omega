@@ -108,6 +108,19 @@ public class DatabaseAPITest {
     }    
     
     @Test
+    public void testCreateOKTable() {
+        System.out.println("createTable");
+        String tableName = "TEST_TABLE";
+        String[] columnNames = new String[]{"id"};
+        String[] columnTypes = new String[]{"integer"};
+        String[] nulls = new String[]{"NOT NULL"};
+        String[] pk = new String[]{"id"};
+        boolean expResult = false;
+        boolean result = TestDBAPI.createTable(TestDBName, TestDBUser, TestDBPass,tableName, columnNames, columnTypes, nulls, pk);
+        assertEquals(expResult, result);
+    }  
+    
+    @Test
     public void testGetAllTablesEmpty(){
         System.out.println("getAllTables: No tables");
         ArrayList<String> tables = TestDBAPI.getAllTablesOf(TestDBName, TestDBUser, TestDBPass);

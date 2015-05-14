@@ -5,9 +5,12 @@
  */
 package db_ws;
 
+import db_ws.models.AddRowModel;
 import db_ws.models.AddTableModel;
 import db_ws.models.AllTablesModel;
 import db_ws.models.CreateDBModel;
+import db_ws.models.DeleteRowModel;
+import db_ws.models.SelectModel;
 
 import db_ws_client.DatabaseWS_Service;
 import db_ws_client.DatabaseWS;
@@ -21,10 +24,13 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import users_connection.User;
+import users_connection.UsersConnection;
 
 /**
  * REST Web Service
@@ -68,7 +74,7 @@ public class DatabaseWSClient {
     @Path("createDatabase")
     public CreateDBModel createDatabase(CreateDBModel params, @Context HttpServletRequest request) throws Exception {
         User usr = (User) request.getSession().getAttribute("user");
-
+        UsersConnection usersConnection = new UsersConnection();
         if (usr != null) {
             String dbName = params.getDbName();
             String user = params.getUser();
@@ -79,6 +85,9 @@ public class DatabaseWSClient {
             if (!port.createDatabase(dbName, user, pw)) {
                 throw new Exception("API ERROR");
             }
+            if(!usersConnection.setDatabaseToUser(usr.getId(), dbName, user, pw)){
+                throw new Exception("API ERROR");
+            }   
             return params;
         }
         return null;
@@ -93,10 +102,14 @@ public class DatabaseWSClient {
     @Path("deleteDatabase")
     public void deleteDatabase(@Context HttpServletRequest request) throws Exception {
         User usr = (User) request.getSession().getAttribute("user");
+        UsersConnection usersConnection = new UsersConnection();
         if (usr != null) {
             DatabaseWS_Service service = new DatabaseWS_Service();
             DatabaseWS port = service.getDatabaseWSPort();
             if (!port.deleteDatabase(usr.getDbName(), usr.getDbUser(), usr.getDbPw())) {
+                throw new Exception("API ERROR");
+            }
+            if(!usersConnection.removeDatabaseFromUser(usr.getId())){
                 throw new Exception("API ERROR");
             }
         }
@@ -122,22 +135,99 @@ public class DatabaseWSClient {
     @PUT
     @Consumes(MediaType.APPLICATION_XML)
     @Path("addTable")
-    public void addTable(AddTableModel table, @Context HttpServletRequest request) throws Exception {
+    public void addTable(AddTableModel params, @Context HttpServletRequest request) throws Exception {
         User usr = (User) request.getSession().getAttribute("user");
         if (usr != null) {
             String dbName = usr.getDbName();
             String user = usr.getDbUser();
             String pw = usr.getDbPw();
-            String table_name = table.getTable_name();
-            ArrayList<String> column_names = table.getColumnNames();
-            ArrayList<String> column_types = table.getColumnTypes();
-            ArrayList<String> column_nulls = table.getNulls();
-            ArrayList<String> column_pks = table.getPks();
+            String table_name = params.getTable_name();
+            ArrayList<String> column_names = params.getColumnNames();
+            ArrayList<String> column_types = params.getColumnTypes();
+            ArrayList<String> column_nulls = params.getNulls();
+            ArrayList<String> column_pks = params.getPks();
             DatabaseWS_Service service = new DatabaseWS_Service();
             DatabaseWS port = service.getDatabaseWSPort();
             if (!port.createTable(dbName,user,pw,table_name, column_names, column_types, column_nulls, column_pks)) {
                 throw new Exception("API ERROR");
             }
         }
+    }
+    
+    @DELETE
+    @Path("deleteTable/{table}")
+    public void deleteTable(@PathParam("table") String table,@Context HttpServletRequest request) throws Exception{
+        User usr = (User) request.getSession().getAttribute("user");
+        if (usr != null) {
+            String dbName = usr.getDbName();
+            String user = usr.getDbUser();
+            String pw = usr.getDbPw();
+            String table_name = table;
+            DatabaseWS_Service service = new DatabaseWS_Service();
+            DatabaseWS port = service.getDatabaseWSPort();
+            if (!port.deleteTable(dbName,user,pw,table_name)) {
+                throw new Exception("API ERROR");
+            }
+        }
+    }
+    
+    @POST
+    @Consumes(MediaType.APPLICATION_XML)
+    @Path("addRow")
+    public void addRow(AddRowModel params,@Context HttpServletRequest request) throws Exception{
+        User usr = (User) request.getSession().getAttribute("user");
+        if (usr != null) {
+            String dbName = usr.getDbName();
+            String user = usr.getDbUser();
+            String pw = usr.getDbPw();
+            String table_name = null;
+            ArrayList<String> list_values = null;
+            DatabaseWS_Service service = new DatabaseWS_Service();
+            DatabaseWS port = service.getDatabaseWSPort();
+            if (!port.addRow(dbName,user,pw,table_name,list_values)) {
+                throw new Exception("API ERROR");
+            }
+        }
+    }
+    
+    @POST
+    @Consumes(MediaType.APPLICATION_XML)
+    @Path("deleteRow")
+    public void deleteRow(DeleteRowModel params,@Context HttpServletRequest request) throws Exception{
+        User usr = (User) request.getSession().getAttribute("user");
+        if (usr != null) {
+            String dbName = usr.getDbName();
+            String user = usr.getDbUser();
+            String pw = usr.getDbPw();
+            String table_name = null;
+            ArrayList<String> column_names = null;
+            ArrayList<String> list_values = null;
+            DatabaseWS_Service service = new DatabaseWS_Service();
+            DatabaseWS port = service.getDatabaseWSPort();
+            if (!port.deleteRow(dbName,user,pw,table_name,column_names,list_values)) {
+                throw new Exception("API ERROR");
+            }
+        }
+    }
+    
+    @GET
+    @Consumes(MediaType.APPLICATION_XML)
+    @Produces(MediaType.APPLICATION_XML)
+    @Path("select")
+    public SelectModel select(@QueryParam("id")int id, @Context HttpServletRequest request){
+        User usr = (User) request.getSession().getAttribute("user");
+        if (usr != null) {
+            String dbName = usr.getDbName();
+            String user = usr.getDbUser();
+            String pw = usr.getDbPw();
+            String table_name = null;
+            ArrayList<String> column_names = null;
+            ArrayList<String> where_names = null;
+            ArrayList<String> where_values = null;
+            DatabaseWS_Service service = new DatabaseWS_Service();
+            DatabaseWS port = service.getDatabaseWSPort();
+            //List<ArrayList> result = port.select(dbName,user,pw,table_name,column_names,where_names,where_values);
+        }
+        return null;
     }
 }
