@@ -39,12 +39,10 @@ public class DatabaseAPITest {
     
     @Before
     public void setUp() {
-        TestDBAPI.openConnection(TestDBName, TestDBUser, TestDBPass);
     }
     
     @After
     public void tearDown() {
-        TestDBAPI.closeConnection(TestDBName, TestDBUser, TestDBPass);
     }
 
     /**
@@ -105,7 +103,7 @@ public class DatabaseAPITest {
         String[] nulls = new String[]{};
         String[] pk = new String[]{};
         boolean expResult = false;
-        boolean result = TestDBAPI.createTable(tableName, columnNames, columnTypes, nulls, pk);
+        boolean result = TestDBAPI.createTable(TestDBName, TestDBUser, TestDBPass,tableName, columnNames, columnTypes, nulls, pk);
         assertEquals(expResult, result);
     }    
     
