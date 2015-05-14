@@ -38,8 +38,7 @@ function callConfigureDatabase() {
             CreateDBModel: {
                 dbName: document.getElementById('dbName').value,
                 user: document.getElementById('user').value,
-                pw: document.getElementById('pw').value,
-                user_id: document.getElementById("user_id").value
+                pw: document.getElementById('pw').value
             }};
         AJAX_call(method, target, params, createDatabaseSuccessCallback, onError);
     } else {
@@ -50,7 +49,7 @@ function callConfigureDatabase() {
 }
 function callDeleteDatabase() {
     var method = 'DELETE';
-    var target = '/db/api/deleteDatabase/' + document.getElementById("user_id").value;
+    var target = '/db/api/deleteDatabase';
     AJAX_call(method, target, null, deleteDatabaseSuccessCallback, onError);
 }
 

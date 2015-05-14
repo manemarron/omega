@@ -17,7 +17,6 @@ public class CreateDBModel {
     private String dbName;
     private String user;
     private String pw;
-    private int user_id;
 
     public String getDbName() {
         return dbName;
@@ -44,15 +43,6 @@ public class CreateDBModel {
     @XmlElement
     public void setPw(String pw) {
         this.pw = pw;
-    }
-
-    public int getUser_id() {
-        return user_id;
-    }
-
-    @XmlElement
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
     }
     
 }
