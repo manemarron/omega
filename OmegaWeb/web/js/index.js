@@ -62,3 +62,15 @@ function resetCreateDBInputs() {
     document.getElementById("pw").value = "";
     document.getElementById("confirm_pw").value = "";
 }
+
+function deleteTable(table){
+    var method= "DELETE";
+    var target="/db/api/deleteTable/"+table;
+    AJAX_call(method,target,null,
+        function onSuccess(){
+            var li = document.getElementById(table);
+            document.getElementById("table_list").removeChild(li);
+        },
+        onError
+    );
+}

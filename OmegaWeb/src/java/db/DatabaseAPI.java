@@ -464,6 +464,7 @@ public class DatabaseAPI {
                 String query = "select t.tablename from sys.systables t, sys.sysschemas s  \n"
                         + "where t.schemaid = s.schemaid \n"
                         + "and t.tabletype = 'T' \n"
+                        + "and s.schemaname = '"+user+"'\n"
                         + "order by t.tablename";
                 Statement statement = connection.createStatement();
                 ResultSet rs = statement.executeQuery(query);

@@ -137,6 +137,9 @@ function validateForm() {
     if (table_name === null || table_name === "") {
         alert("El nombre de la tabla es obligatorio");
         return false;
+    } else if (table_name.indexOf(" ") > -1) {
+        alert("El nombre de la tabla no puede contener espacios");
+        return false;
     }
 
     var columns = document.getElementsByClassName("columna");
@@ -150,7 +153,6 @@ function validateForm() {
         var size = false;
         var selects = column.getElementsByTagName("select");
         for (var j = 0; j < selects.length; j++) {
-            console.log(selects[j].name);
             if (selects[j].value === null || selects[j].value === "") {
                 alert("Los datos de alguna columna son incorrectos");
                 return false;
@@ -165,6 +167,9 @@ function validateForm() {
                     continue;
                 alert("Los datos de alguna columna son incorrectos");
                 return false;
+            } else if (inputs[j].className === "name" && inputs[j].value.indexOf(" ") > -1) {
+                alert("El nombre de las columnas no puede contener espacios");
+                return false;
             }
         }
 
@@ -178,7 +183,7 @@ function validateForm() {
             function () { //onSuccess
                 document.location = "/OmegaWeb";
             }
-            )
+    )
     return false;
 }
 function parseQuerytoJSON() {
@@ -196,9 +201,11 @@ function parseQuerytoJSON() {
         var type = column.getElementsByClassName("type")[0];
         object.column.type = type.value;
         var size = column.getElementsByClassName("size")[0];
-        object.column.size = size.value; 
-        if(object.column.size !== '') object.column.size = parseInt(object.column.size);
-        else object.column.size = 0;
+        object.column.size = size.value;
+        if (object.column.size !== '')
+            object.column.size = parseInt(object.column.size);
+        else
+            object.column.size = 0;
         var nullable = column.getElementsByClassName("nullable")[0];
         object.column.nullable = nullable.checked;
         var pk = column.getElementsByClassName("pk")[0];
