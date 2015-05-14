@@ -105,4 +105,13 @@ public class DatabaseWS {
         DatabaseAPI dbApi = new DatabaseAPI();
         return dbApi.select(dbName, user, pw, tableName, selectColumnNames, whereColumnNames, values);
     }
+    
+    @WebMethod(operationName = "getTables")
+    public ArrayList<String> getTables(
+            @WebParam(name = "dbName") String dbName,
+            @WebParam(name = "user") String user,
+            @WebParam(name = "pw") String pw) {
+        DatabaseAPI dbApi = new DatabaseAPI();
+        return dbApi.getAllTablesOf(dbName, user, pw);
+    }
 }

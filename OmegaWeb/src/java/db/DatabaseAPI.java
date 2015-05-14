@@ -208,8 +208,13 @@ public class DatabaseAPI {
 
             cad.append("CREATE TABLE ").append(tableName).append(" (");
 
-            for (int i = 0; i < columnNames.length; i++) {
-                cad.append(columnNames[i]).append(" ").append(columnTypes[i]).append(" ").append(nulls[i]).append(", ");
+            if (columnNames.length > 0) {
+                for (int i = 0; i < columnNames.length; i++) {
+                    cad.append(columnNames[i]).append(" ").append(columnTypes[i]).append(" ").append(nulls[i]);
+                    if(i<columnNames.length-1){
+                        cad.append(", ");
+                    }
+                }
             }
 
             if (pk.length > 0) {
@@ -224,7 +229,7 @@ public class DatabaseAPI {
             }
 
             cad.append(")");
-
+            System.out.println(cad.toString());
             try {
                 Statement stmt = connection.createStatement();
                 stmt.executeUpdate(cad.toString());

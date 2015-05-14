@@ -76,7 +76,7 @@ function agregarColumna() {
     nullable_lbl.innerHTML = "NULL?";
     var nullable_ipt = document.createElement("input");
     nullable_ipt.id = "column_null_" + document.num_columna;
-    nullable_ipt.className = "null";
+    nullable_ipt.className = "nullable";
     nullable_ipt.setAttribute("type", "checkbox");
     nullable_ipt.setAttribute("checked", "true");
 
@@ -171,12 +171,12 @@ function validateForm() {
     }
 
     var params = parseQuerytoJSON();
+    params["table_name"] = table_name;
     console.log(params);
-    AJAX_call("POST", "/db/api/addTable", params,
+    AJAX_call("PUT", "/db/api/addTable", params,
             function () { //onSuccess
                 document.location = "/OmegaWeb";
-            },
-            onError()
+            }
             )
     return false;
 }
@@ -193,16 +193,16 @@ function parseQuerytoJSON() {
         var inputs = column.getElementsByTagName("input");
         var selects = column.getElementsByTagName("select");
         for (var j = 0; j < selects.length; j++) {
-            object["column_type"] = selects[j].value;
+            object[selects[j].className] = selects[j].value;
         }
         for (var j = 0; j < inputs.length; j++) {
             if (inputs[j].getAttribute("type") === "checkbox") {
-                object["column_" + inputs[j].className] = inputs[j].checked;
+                object[inputs[j].className] = inputs[j].checked;
             } else if (inputs[j].getAttribute("type") === "number" &&
                     inputs[j].value !== '') {
-                object["column_" + inputs[j].className] = parseInt(inputs[j].value);
+                object[inputs[j].className] = parseInt(inputs[j].value);
             } else {
-                object["column_" + inputs[j].className] = inputs[j].value;
+                object[inputs[j].className] = inputs[j].value;
             }
         }
         result.columns.push(object);

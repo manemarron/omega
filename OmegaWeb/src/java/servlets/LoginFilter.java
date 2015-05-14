@@ -41,7 +41,10 @@ public class LoginFilter implements Filter {
         "login",
         "register",
         "login_control",
-        "register_control"
+        "register_control",
+        "DatabaseWS?wsdl",
+        "DatabaseWS",
+        "DatabaseWS?Tester"
     };
 
     // The filter configuration object we are associated with.  If
@@ -83,8 +86,8 @@ public class LoginFilter implements Filter {
             chain.doFilter(request, response);
         }
     }
-    
-    private void updateSession(HttpSession session){
+
+    private void updateSession(HttpSession session) {
         UsersConnection connection = new UsersConnection();
         try {
             connection.setConnection();
@@ -104,6 +107,7 @@ public class LoginFilter implements Filter {
             }
         }
     }
+
     /**
      * Return the filter configuration object for this filter.
      *
