@@ -457,18 +457,24 @@ public class DatabaseAPI {
 
     public ArrayList<String> getAllTablesOf(String dbName, String user, String pw) {
         ArrayList<String> result = new ArrayList<>();
-        try {
-            String query = "select t.tablename from sys.systables t, sys.sysschemas s  \n"
-                    + "where t.schemaid = s.schemaid \n"
-                    + "and t.tabletype = 'T' \n"
-                    + "order by t.tablename";
-            Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(query);
-            while (rs.next()) {
-                result.add(rs.getString("tablename"));
+        if (openConnection(dbName, user, pw)) {
+            try {
+                String query = "select t.tablename from sys.systables t, sys.sysschemas s  \n"
+                        + "where t.schemaid = s.schemaid \n"
+                        + "and t.tabletype = 'T' \n"
+                        + "order by t.tablename";
+                Statement statement = connection.createStatement();
+                ResultSet rs = statement.executeQuery(query);
+                while (rs.next()) {
+                    result.add(rs.getString("tablename"));
+                }
+                closeConnection(dbName, user, pw);
+            } catch (SQLException ex) {
+                if (DEBUG) {
+                    Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                closeConnection(dbName, user, pw);
             }
-        } catch (SQLException sqlex) {
-
         }
         return result;
     }
