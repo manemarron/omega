@@ -7,9 +7,12 @@ package users_connection;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 /**
  *
@@ -29,14 +32,39 @@ public class UsersConnection {
         }
     }
 
-    public ResultSet getResultSet(String query) throws SQLException {
-        Statement statement = con.createStatement();
-        return statement.executeQuery(query);
+    public ResultSet getResultSet(String query, List<?> params) throws SQLException {
+        ResultSet result;
+        if (params == null) {
+            Statement statement = con.createStatement();
+            result = statement.executeQuery(query);
+        } else {
+            PreparedStatement statement = con.prepareStatement(query);
+            for (int i = 0; i < params.size(); i++) {
+                try {
+                    statement.setInt(i + 1, Integer.parseInt(params.get(i).toString()));
+                } catch (NumberFormatException nfe) {
+                    statement.setString(i + 1, (String) params.get(i));
+                } catch(NullPointerException e){
+                    statement.setString(i + 1, null);
+                }
+            }
+            result = statement.executeQuery();
+        }
+        return result;
     }
 
-    public void executeQuery(String query) throws SQLException {
-        Statement s = con.createStatement();
-        s.executeUpdate(query);
+    public int executeQuery(String query, List<?> params) throws SQLException {
+        PreparedStatement statement = con.prepareStatement(query);
+        for (int i = 0; i < params.size(); i++) {
+            try {
+                statement.setInt(i + 1, Integer.parseInt(params.get(i).toString()));
+            } catch (NumberFormatException nfe) {
+                statement.setString(i + 1, (String) params.get(i));
+            } catch(NullPointerException npe){
+                statement.setString(i + 1, null);
+            }
+        }
+        return statement.executeUpdate();
     }
 
     public void closeConnection() throws SQLException {

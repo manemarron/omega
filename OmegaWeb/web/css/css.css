@@ -1,0 +1,23 @@
+/* 
+    Created on : May 11, 2015, 12:13:53 AM
+    Author     : manemarron
+*/
+#headerDiv {
+    width: 100%;
+    height: 50px;
+    background-color: green;
+    color: white;
+    padding: 10px;
+    margin: 0;
+    border: 0;
+}
+#headerDiv>h1{
+    font-size: x-large;
+    margin: auto 40px;
+    display: inline-block;
+}
+#headerDiv .account{
+    float: right;
+    margin: auto 40px;
+    display: inline-block;
+}

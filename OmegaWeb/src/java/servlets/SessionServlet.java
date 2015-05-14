@@ -11,6 +11,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -63,23 +65,30 @@ public class SessionServlet extends HttpServlet {
             if (null != request.getRequestURI()) {
                 switch (request.getRequestURI()) {
                     case "/OmegaWeb/login_control":
-                        out.print(login(request));
+                        if(login(request))
+                            response.sendRedirect(request.getContextPath());
+                        else
+                            response.sendRedirect(request.getContextPath()+"/login");
                         break;
                     case "/OmegaWeb/register_control":
-                        out.print(register(request));
+                        if(register(request))
+                            response.sendRedirect(request.getContextPath());
+                        else
+                            response.sendRedirect(request.getContextPath()+"/register");
                         break;
                 }
             }
         }
     }
 
-    private String register(HttpServletRequest request) {
-        String result = null;
+    private boolean register(HttpServletRequest request) {
         String username = request.getParameter("username");
         String first_name = request.getParameter("first_name");
         String last_name = request.getParameter("last_name");
         String pass = null;
         boolean passwords_match = false;
+        
+        HttpSession session = request.getSession(true);
 
         try {
             String confirm_pass;
@@ -87,78 +96,79 @@ public class SessionServlet extends HttpServlet {
             confirm_pass = toSha1(request.getParameter("confirm_password"));
             passwords_match = Objects.equals(pass, confirm_pass);
         } catch (NoSuchAlgorithmException ex) {
-            result = "{'status': 500, 'message': 'Error del servidor'}";
+            System.err.println(ex.getMessage());
         }
 
         if (valid(username) && valid(first_name) && valid(last_name) && valid(pass) && passwords_match) {
             try {
                 CONNECTION.setConnection();
-                String query = String.format("INSERT INTO USERS(USERNAME,PASSWORD,FIRST_NAME,LAST_NAME) VALUES('%s','%s','%s','%s')",
-                        username, pass, first_name, last_name);
-                CONNECTION.executeQuery(query);
-                query = String.format("SELECT * FROM USERS WHERE username='%s'", username);
-                ResultSet rs = CONNECTION.getResultSet(query);
+                String query = "INSERT INTO USERS(USERNAME,PASSWORD,FIRST_NAME,LAST_NAME) VALUES(?,?,?,?)";
+                List<?> params = Arrays.asList(new String[]{username,pass,first_name,last_name});
+                CONNECTION.executeQuery(query,params);
+                query = "SELECT * FROM USERS WHERE username=?";
+                params = Arrays.asList(new String[]{username});
+                ResultSet rs = CONNECTION.getResultSet(query,params);
                 if (rs.next()) {
-                    HttpSession session = request.getSession(true);
-                    User user = new User();
-                    user.setFromResultSet(rs);
+                    User user = User.setFromResultSet(rs);
                     session.setAttribute("user", user);
-                    result = "{'status': 200}";
+                    return true;
                 }
             } catch (SQLException ex) {
-                result = "{'status': 500, 'message': 'Error del servidor'}";
+                System.err.println(ex.getMessage());
+                session.setAttribute("error", "Hubo un error. Intente más tarde");
             } finally {
                 try {
                     CONNECTION.closeConnection();
                 } catch (SQLException ex) {
-                    result = "{'status': 500, 'message': 'Error del servidor'}";
+                    System.err.println(ex.getMessage());
+                    session.setAttribute("error", "Hubo un error. Intente más tarde");
                 }
             }
+        } else{
+            session.setAttribute("error", "Los datos son inválidos");
         }
-        return result;
+        return false;
     }
 
-    private String login(HttpServletRequest request) {
-        String result = null;
+    private boolean login(HttpServletRequest request) {
         String username = request.getParameter("username");
         String pass = null;
-
+        HttpSession session = request.getSession(true);
         //Convertir la contraseña a sha-1 para poder comparar
         try {
             pass = toSha1(request.getParameter("password"));
         } catch (NoSuchAlgorithmException ex) {
-            result = "{'status': 500, 'message': 'Error del servidor'}";
+            System.err.println(ex.getMessage());
         }
 
         if (valid(username) && valid(pass)) {
             try {
                 CONNECTION.setConnection();
-                String query = String.format("SELECT * FROM USERS WHERE username='%s'", username);
-                ResultSet rs = CONNECTION.getResultSet(query);
+                String query = "SELECT * FROM USERS WHERE username=?";
+                List<?> params = Arrays.asList(new String[]{username});
+                ResultSet rs = CONNECTION.getResultSet(query,params);
                 if (rs.next()) {
-                    if (pass.equals(rs.getString("password"))) {
-                        User user = new User();
-                        user.setFromResultSet(rs);
-                        HttpSession session = request.getSession(true);
+                    if (rs.getString("password").equals(pass)) {
+                        User user = User.setFromResultSet(rs);
                         session.setAttribute("user", user);
-                        result = "{'status': 200}";
+                        return true;
                     } else {
-                        result = "{'status': 403, 'message': 'La contraseña es inválida'}";
+                        session.setAttribute("error", "La contraseña es inválida");
                     }
                 } else {
-                    result = "{'status': 403, 'message': 'El usuario no existe'}";
+                    session.setAttribute("error", "El usuario no existe");
                 }
             } catch (SQLException ex) {
-                result = "{'status': 500, 'message': 'Error del servidor'}";
+                session.setAttribute("error", "Hubo un error. Intente más tarde");
             } finally {
                 try {
                     CONNECTION.closeConnection();
                 } catch (SQLException ex) {
-                    result = "{'status': 500, 'message': 'Error del servidor'}";
+                    session.setAttribute("error", "Hubo un error. Intente más tarde");
                 }
             }
         }
-        return result;
+        return false;
     }
 
     private String toSha1(String s) throws NoSuchAlgorithmException {

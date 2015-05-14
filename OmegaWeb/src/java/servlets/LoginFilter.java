@@ -8,7 +8,10 @@ package servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -18,6 +21,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import users_connection.User;
+import users_connection.UsersConnection;
 
 /**
  *
@@ -29,11 +34,12 @@ public class LoginFilter implements Filter {
      * Constante con propósitos de depuración. Sirve para que no se tenga que
      * hacer login para realizar pruebas más rápidamente en agunos casos.
      */
-    private static final boolean VALIDATION = false;
-    
+    private static final boolean VALIDATION = true;
+
     private static final boolean debug = true;
     private static final String[] NO_LOGIN = new String[]{
         "login",
+        "register",
         "login_control",
         "register_control"
     };
@@ -56,10 +62,10 @@ public class LoginFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
-        
+
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
-        
+
         if (VALIDATION) {
             HttpSession session = req.getSession();
             if (session.getAttribute("user") == null) {
@@ -70,13 +76,34 @@ public class LoginFilter implements Filter {
                     chain.doFilter(request, response);
                 }
             } else {
+                updateSession(session);
                 chain.doFilter(request, response);
             }
         } else {
             chain.doFilter(request, response);
         }
     }
-
+    
+    private void updateSession(HttpSession session){
+        UsersConnection connection = new UsersConnection();
+        try {
+            connection.setConnection();
+            String query = "SELECT * FROM USERS WHERE ID=?";
+            List<?> params = Arrays.asList(new Integer[]{((User) session.getAttribute("user")).getId()});
+            ResultSet rs = connection.getResultSet(query, params);
+            rs.next();
+            User user = User.setFromResultSet(rs);
+            session.setAttribute("user", user);
+        } catch (SQLException ex) {
+            session.setAttribute("error", "Hubo un error. Intente más tarde");
+        } finally {
+            try {
+                connection.closeConnection();
+            } catch (SQLException ex) {
+                session.setAttribute("error", "Hubo un error. Intente más tarde");
+            }
+        }
+    }
     /**
      * Return the filter configuration object for this filter.
      *
@@ -130,7 +157,7 @@ public class LoginFilter implements Filter {
         sb.append(")");
         return (sb.toString());
     }
-    
+
     public static String getStackTrace(Throwable t) {
         String stackTrace = null;
         try {
@@ -144,9 +171,9 @@ public class LoginFilter implements Filter {
         }
         return stackTrace;
     }
-    
+
     public void log(String msg) {
         filterConfig.getServletContext().log(msg);
     }
-    
+
 }

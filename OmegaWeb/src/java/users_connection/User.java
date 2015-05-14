@@ -17,12 +17,20 @@ public class User {
     private String username;
     private String firstName;
     private String lastName;
+    private String dbName;
+    private String dbUser;
+    private String dbPw;
     
-    public void setFromResultSet(ResultSet rs) throws SQLException{
-        id = rs.getInt("id");
-        username = rs.getString("username");
-        firstName = rs.getString("first_name");
-        lastName = rs.getString("last_name");
+    public static User setFromResultSet(ResultSet rs) throws SQLException{
+        User user = new User();
+        user.id = rs.getInt("ID");
+        user.username = rs.getString("USERNAME");
+        user.firstName = rs.getString("FIRST_NAME");
+        user.lastName = rs.getString("LAST_NAME");
+        user.dbName = rs.getString("DB_NAME");
+        user.dbUser = rs.getString("DB_USER");
+        user.dbPw = rs.getString("DB_PASSWORD");
+        return user;
     }
 
     public int getId() {
@@ -39,6 +47,18 @@ public class User {
 
     public String getLastName() {
         return lastName;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public String getDbUser() {
+        return dbUser;
+    }
+
+    public String getDbPw() {
+        return dbPw;
     }
     
     
