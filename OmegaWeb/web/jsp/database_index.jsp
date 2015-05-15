@@ -19,9 +19,7 @@
     ArrayList tables = new ArrayList();
     if (usr.getDbName() != null) {
         DatabaseAPI db = new DatabaseAPI();
-        db.openConnection(dbName, dbUsr, dbPw);
         tables = db.getAllTablesOf(dbName, dbUsr, dbPw);
-        db.closeConnection(dbName, dbUsr, dbPw);
     }
 %>
 <button id="db_button" onclick="callDeleteDatabase();">
