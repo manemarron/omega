@@ -6,6 +6,8 @@
 package db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -104,6 +106,7 @@ public class DatabaseAPITest {
         String[] pk = new String[]{};
         boolean expResult = false;
         boolean result = TestDBAPI.createTable(TestDBName, TestDBUser, TestDBPass,tableName, columnNames, columnTypes, nulls, pk);
+        TestDBAPI.deleteTable(TestDBName, TestDBUser, TestDBPass,tableName);
         assertEquals(expResult, result);
     }    
     
@@ -115,8 +118,9 @@ public class DatabaseAPITest {
         String[] columnTypes = new String[]{"integer"};
         String[] nulls = new String[]{"NOT NULL"};
         String[] pk = new String[]{"id"};
-        boolean expResult = false;
+        boolean expResult = true;
         boolean result = TestDBAPI.createTable(TestDBName, TestDBUser, TestDBPass,tableName, columnNames, columnTypes, nulls, pk);
+        TestDBAPI.deleteTable(TestDBName, TestDBUser, TestDBPass,tableName);
         assertEquals(expResult, result);
     }  
     
@@ -126,5 +130,20 @@ public class DatabaseAPITest {
         ArrayList<String> tables = TestDBAPI.getAllTablesOf(TestDBName, TestDBUser, TestDBPass);
         ArrayList<String> exp_tables = new ArrayList<>();
         assertEquals(exp_tables, tables);
+    }
+    
+    @Test
+    public void testGetColumnsOfTable(){
+        System.out.println("getColumns");
+        String table_name="TEST_TABLE_TESTS";
+        String[] columnNames = new String[]{"id","text"};
+        String[] columnTypes = new String[]{"integer","varchar(200)"};
+        String[] nulls = new String[]{"NOT NULL",""};
+        String[] pk = new String[]{"id"};
+        TestDBAPI.createTable(TestDBName, TestDBUser, TestDBPass, table_name, columnNames, columnTypes, nulls, pk);
+        List<String> result = TestDBAPI.getColumnsOfTable(TestDBName, TestDBUser, TestDBPass,table_name);
+        List<String> expected = Arrays.asList(new String[]{"ID","TEXT"});
+        TestDBAPI.deleteTable(TestDBName, TestDBUser, TestDBPass,table_name);
+        assertEquals(expected, result);
     }
 }

@@ -10,11 +10,12 @@ import db_ws.models.AddTableModel;
 import db_ws.models.AllTablesModel;
 import db_ws.models.CreateDBModel;
 import db_ws.models.DeleteRowModel;
-import db_ws.models.SelectModel;
+import db_ws.models.SelectRequestModel;
 
 import db_ws_client.DatabaseWS_Service;
 import db_ws_client.DatabaseWS;
 import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import javax.ws.rs.core.Context;
@@ -27,7 +28,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import users_connection.User;
 import users_connection.UsersConnection;
@@ -210,23 +210,22 @@ public class DatabaseWSClient {
         }
     }
     
-    @GET
-    @Consumes(MediaType.APPLICATION_XML)
+    @POST
     @Produces(MediaType.APPLICATION_XML)
     @Path("select")
-    public SelectModel select(@QueryParam("id")int id, @Context HttpServletRequest request){
+    public String select(SelectRequestModel params, @Context HttpServletRequest request){
         User usr = (User) request.getSession().getAttribute("user");
         if (usr != null) {
             String dbName = usr.getDbName();
             String user = usr.getDbUser();
             String pw = usr.getDbPw();
-            String table_name = null;
-            ArrayList<String> column_names = null;
-            ArrayList<String> where_names = null;
-            ArrayList<String> where_values = null;
+            String table_name = params.getTableName();
+            List<String> selectColumnNames = params.getSelectColumnNames();
+            List<String> whereColumnNames = params.getWhereColumnNames();
+            List<String> values = params.getValues();
             DatabaseWS_Service service = new DatabaseWS_Service();
             DatabaseWS port = service.getDatabaseWSPort();
-            //List<ArrayList> result = port.select(dbName,user,pw,table_name,column_names,where_names,where_values);
+            port.select(dbName,user,pw,table_name,selectColumnNames,whereColumnNames,values);
         }
         return null;
     }

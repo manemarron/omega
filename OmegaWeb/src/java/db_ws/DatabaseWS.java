@@ -94,7 +94,7 @@ public class DatabaseWS {
     }
 
     @WebMethod(operationName = "select")
-    public ArrayList<ArrayList<String>> select(
+    public String select(
             @WebParam(name = "dbName") String dbName,
             @WebParam(name = "user") String user,
             @WebParam(name = "pw") String pw,

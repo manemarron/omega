@@ -8,6 +8,7 @@ package db;
 import java.io.File;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.ResultSet;
@@ -397,12 +398,11 @@ public class DatabaseAPI {
      * @param values : Values of the columns being compared
      * @return : 2-D ArrayList with results, null if exception
      */
-    public ArrayList<ArrayList<String>> select(String dbName, String user,
+    public String select(String dbName, String user,
             String pw, String tableName,
             String[] selectColumnNames,
             String[] whereColumnNames,
             String[] values) {
-
         if (openConnection(dbName, user, pw)) {
             StringBuilder cad = new StringBuilder();
             cad.append("SELECT ").append(join(selectColumnNames, ",")).append(" FROM ").
@@ -437,16 +437,22 @@ public class DatabaseAPI {
                 ResultSetMetaData rsmd = rs.getMetaData();
                 int columnsNumber = rsmd.getColumnCount();
 
-                ArrayList<ArrayList<String>> results = new ArrayList();
+                StringBuilder xmlResult = new StringBuilder();
+                xmlResult.append("<SelectResponseModel>");
+                xmlResult.append("<rows>");
                 while (rs.next()) {
-                    ArrayList<String> row = new ArrayList();
+                    xmlResult.append("<row>");
                     for (int i = 1; i <= columnsNumber; i++) {
-                        row.add(rs.getString(i)); // Index starts at 1
+                        xmlResult.append("<column>");
+                        xmlResult.append(rs.getString(i));
+                        xmlResult.append("</column>");
                     }
-                    results.add(row);
+                    xmlResult.append("</row>");
                 }
+                xmlResult.append("</rows>");
+                xmlResult.append("</SelectResponseModel>");
                 closeConnection(dbName, user, pw);
-                return results;
+                return xmlResult.toString();
             } catch (SQLException ex) {
                 if (DEBUG) {
                     Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
@@ -472,6 +478,25 @@ public class DatabaseAPI {
                 ResultSet rs = statement.executeQuery(query);
                 while (rs.next()) {
                     result.add(rs.getString("tablename"));
+                }
+                closeConnection(dbName, user, pw);
+            } catch (SQLException ex) {
+                if (DEBUG) {
+                    Logger.getLogger(DatabaseAPI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                closeConnection(dbName, user, pw);
+            }
+        }
+        return result;
+    }
+    public ArrayList<String> getColumnsOfTable(String dbName, String user, String pw,String table_name){
+        ArrayList<String> result = new ArrayList<>();
+        if (openConnection(dbName, user, pw)) {
+            try {
+                DatabaseMetaData meta = connection.getMetaData();
+                ResultSet rs = meta.getColumns(null, user.toUpperCase(), table_name.toUpperCase(), null);
+                while (rs.next()) {
+                    result.add(rs.getString("COLUMN_NAME"));
                 }
                 closeConnection(dbName, user, pw);
             } catch (SQLException ex) {
