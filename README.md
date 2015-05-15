@@ -1,11 +1,13 @@
-# omega
-Proyecto Omega. ITAM. Sistemas Distribuidos
+# OMEGA
 
-Para que funcione:<br/>
-<ol>
-<li>Borrar el directorio donde esta el repositorio</li>
-<li>Volver a clonar el repositorio</li>
-<li>Abrir Netbeans y poner New Project</li>
-<li>Poner Java Web -> Web Application with existing sources</li>
-<li>Escoges la carpeta OmegaWeb y pones siguiente hasta que termines</li>
-</ol>
+================== INSTRUCCIONES DE EJECUCIÓN ==================
+
+1) ABRIR EL PROYECTO EN NETBEANS 8.0.2
+
+2) ARRANCAR SERVIDOR GLASSFISH 4.1
+
+3) HACER "CLEAN AND BUILD" AL PROYECTO
+
+4) HACER "DEPLOY" AL PROYECTO
+
+5) EJECUTAR EL PROYECTO
