@@ -224,8 +224,8 @@ public class DatabaseAPI {
                     }
                 }
                 cad.append(")");
-            } else{
-                cad.setLength(cad.length()-2);
+            } else {
+                cad.setLength(cad.length() - 2);
             }
 
             cad.append(")");
@@ -406,25 +406,28 @@ public class DatabaseAPI {
         if (openConnection(dbName, user, pw)) {
             StringBuilder cad = new StringBuilder();
             cad.append("SELECT ").append(join(selectColumnNames, ",")).append(" FROM ").
-                    append(tableName).append(" WHERE ");
+                    append(tableName);
 
-            for (int i = 0; i < values.length; i++) {
+            if (whereColumnNames.length > 0) {
+                cad.append(" WHERE ");
+                for (int i = 0; i < values.length; i++) {
 
-                try { // If column has an integer value
-                    int valueInt = Integer.parseInt(values[i]);
-                    cad.append(whereColumnNames[i]).append(" = ").append(valueInt).append("");
-                } catch (Exception e1) {
+                    try { // If column has an integer value
+                        int valueInt = Integer.parseInt(values[i]);
+                        cad.append(whereColumnNames[i]).append(" = ").append(valueInt).append("");
+                    } catch (Exception e1) {
 
-                    try { // If column has a decimal value
-                        double valueFloat = Double.parseDouble(values[i]);
-                        cad.append(whereColumnNames[i]).append(" = ").append(valueFloat).append("");
-                    } catch (Exception e2) { // Column is not a number
-                        cad.append(whereColumnNames[i]).append(" = '").append(values[i]).append("'");
+                        try { // If column has a decimal value
+                            double valueFloat = Double.parseDouble(values[i]);
+                            cad.append(whereColumnNames[i]).append(" = ").append(valueFloat).append("");
+                        } catch (Exception e2) { // Column is not a number
+                            cad.append(whereColumnNames[i]).append(" = '").append(values[i]).append("'");
+                        }
                     }
-                }
 
-                if (i < values.length - 1) { // Appends AND clause for all values except the last one
-                    cad.append(" AND ");
+                    if (i < values.length - 1) { // Appends AND clause for all values except the last one
+                        cad.append(" AND ");
+                    }
                 }
             }
 
@@ -439,7 +442,6 @@ public class DatabaseAPI {
 
                 StringBuilder xmlResult = new StringBuilder();
                 xmlResult.append("<SelectResponseModel>");
-                xmlResult.append("<rows>");
                 while (rs.next()) {
                     xmlResult.append("<row>");
                     for (int i = 1; i <= columnsNumber; i++) {
@@ -449,9 +451,9 @@ public class DatabaseAPI {
                     }
                     xmlResult.append("</row>");
                 }
-                xmlResult.append("</rows>");
                 xmlResult.append("</SelectResponseModel>");
                 closeConnection(dbName, user, pw);
+                System.out.println(xmlResult.toString());
                 return xmlResult.toString();
             } catch (SQLException ex) {
                 if (DEBUG) {
@@ -472,7 +474,7 @@ public class DatabaseAPI {
                 String query = "select t.tablename from sys.systables t, sys.sysschemas s  \n"
                         + "where t.schemaid = s.schemaid \n"
                         + "and t.tabletype = 'T' \n"
-                        + "and s.schemaname = '"+user.toUpperCase()+"'\n"
+                        + "and s.schemaname = '" + user.toUpperCase() + "'\n"
                         + "order by t.tablename";
                 Statement statement = connection.createStatement();
                 ResultSet rs = statement.executeQuery(query);
@@ -489,14 +491,21 @@ public class DatabaseAPI {
         }
         return result;
     }
-    public ArrayList<String> getColumnsOfTable(String dbName, String user, String pw,String table_name){
-        ArrayList<String> result = new ArrayList<>();
+
+    public ArrayList<ArrayList<String>> getColumnsOfTable(String dbName, String user, String pw, String table_name) {
+        ArrayList<ArrayList<String>> result = new ArrayList<>();
         if (openConnection(dbName, user, pw)) {
             try {
                 DatabaseMetaData meta = connection.getMetaData();
                 ResultSet rs = meta.getColumns(null, user.toUpperCase(), table_name.toUpperCase(), null);
+                int i = 0;
                 while (rs.next()) {
-                    result.add(rs.getString("COLUMN_NAME"));
+                    result.add(new ArrayList<>());
+                    result.get(i).add(rs.getString("COLUMN_NAME"));
+                    result.get(i).add(rs.getString("TYPE_NAME"));
+                    result.get(i).add("" + rs.getInt("COLUMN_SIZE"));
+                    result.get(i).add("" + rs.getString("IS_NULLABLE"));
+                    i++;
                 }
                 closeConnection(dbName, user, pw);
             } catch (SQLException ex) {

@@ -24,6 +24,10 @@
         <servlet-name>NewTable</servlet-name>
         <jsp-file>/new_table.jsp</jsp-file>
     </servlet>
+    <servlet>
+        <servlet-name>ViewTable</servlet-name>
+        <jsp-file>/view_table.jsp</jsp-file>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SessionServlet</servlet-name>
         <url-pattern>/login_control</url-pattern>
@@ -41,6 +45,10 @@
     <servlet-mapping>
         <servlet-name>NewTable</servlet-name>
         <url-pattern>/NewTable</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewTable</servlet-name>
+        <url-pattern>/ViewTable</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

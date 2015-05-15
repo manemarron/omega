@@ -180,8 +180,8 @@ public class DatabaseWSClient {
             String dbName = usr.getDbName();
             String user = usr.getDbUser();
             String pw = usr.getDbPw();
-            String table_name = null;
-            ArrayList<String> list_values = null;
+            String table_name = params.getTable_name();
+            ArrayList<String> list_values = (ArrayList)params.getValues();
             DatabaseWS_Service service = new DatabaseWS_Service();
             DatabaseWS port = service.getDatabaseWSPort();
             if (!port.addRow(dbName,user,pw,table_name,list_values)) {
@@ -220,12 +220,17 @@ public class DatabaseWSClient {
             String user = usr.getDbUser();
             String pw = usr.getDbPw();
             String table_name = params.getTableName();
-            List<String> selectColumnNames = params.getSelectColumnNames();
-            List<String> whereColumnNames = params.getWhereColumnNames();
-            List<String> values = params.getValues();
+            ArrayList<String> selectColumnNames = (ArrayList)params.getSelectColumnNames();
+            ArrayList<String> whereColumnNames = (ArrayList)params.getWhereColumnNames();
+            ArrayList<String> values = (ArrayList)params.getValues();
+            if(whereColumnNames.size()==1 && whereColumnNames.get(0).equals("")){
+                whereColumnNames.remove(0);
+                values.remove(0);
+            }
+           
             DatabaseWS_Service service = new DatabaseWS_Service();
             DatabaseWS port = service.getDatabaseWSPort();
-            port.select(dbName,user,pw,table_name,selectColumnNames,whereColumnNames,values);
+            return port.select(dbName,user,pw,table_name,selectColumnNames,whereColumnNames,values);
         }
         return null;
     }

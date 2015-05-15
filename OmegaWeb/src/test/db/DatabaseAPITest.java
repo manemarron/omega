@@ -141,8 +141,11 @@ public class DatabaseAPITest {
         String[] nulls = new String[]{"NOT NULL",""};
         String[] pk = new String[]{"id"};
         TestDBAPI.createTable(TestDBName, TestDBUser, TestDBPass, table_name, columnNames, columnTypes, nulls, pk);
-        List<String> result = TestDBAPI.getColumnsOfTable(TestDBName, TestDBUser, TestDBPass,table_name);
-        List<String> expected = Arrays.asList(new String[]{"ID","TEXT"});
+        ArrayList<ArrayList<String>> result = TestDBAPI.getColumnsOfTable(TestDBName, TestDBUser, TestDBPass,table_name);
+        String[] expected_matrx = new String[]{"ID","INTEGER","10","NO"};
+        ArrayList<String> aux = (ArrayList)Arrays.asList(expected_matrx);
+        ArrayList<ArrayList<String>> expected = new ArrayList<>();
+        expected.add(aux);
         TestDBAPI.deleteTable(TestDBName, TestDBUser, TestDBPass,table_name);
         assertEquals(expected, result);
     }

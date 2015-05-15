@@ -26,7 +26,7 @@ public class SelectRequestModel {
         return tableName;
     }
 
-    @XmlElement(name = "tableName")
+    @XmlElement(name = "table_name")
     public void setTableName(String tableName) {
         this.tableName = tableName;
     }
@@ -36,6 +36,7 @@ public class SelectRequestModel {
     }
 
     @XmlElementWrapper(name = "selectColumnNames")
+    @XmlElement(name = "column")
     public void setSelectColumnNames(List<String> selectColumnNames) {
         this.selectColumnNames = selectColumnNames;
     }
@@ -45,6 +46,7 @@ public class SelectRequestModel {
     }
 
     @XmlElementWrapper(name = "whereColumnNames")
+    @XmlElement(name = "column")
     public void setWhereColumnNames(List<String> whereColumnNames) {
         this.whereColumnNames = whereColumnNames;
     }
@@ -54,6 +56,7 @@ public class SelectRequestModel {
     }
 
     @XmlElementWrapper(name = "values")
+    @XmlElement(name = "column")
     public void setValues(List<String> values) {
         this.values = values;
     }
