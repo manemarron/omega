@@ -175,8 +175,10 @@ function validateForm() {
 
     }
 
-    var model = {table_name: table_name};
-    model.columns = parseQuerytoJSON();
+    var model = {
+        table_name: table_name,
+        columns : parseQuerytoJSON()
+    };
     var params = {AddTableModel: model};
     console.log(params);
     AJAX_call("PUT", "/db/api/addTable", params,
@@ -187,30 +189,30 @@ function validateForm() {
     return false;
 }
 function parseQuerytoJSON() {
-    var result = [];
+    var result = {column:[]};
     var columns = document.getElementsByClassName("columna");
     if (columns.length === 0) {
         alert("Debe haber al menos una columna");
         return false;
     }
     for (var i = 0; i < columns.length; i++) {
-        var object = {column: {}};
+        var object = {};
         var column = columns[i];
         var name = column.getElementsByClassName("name")[0];
-        object.column.name = name.value;
+        object.name = name.value;
         var type = column.getElementsByClassName("type")[0];
-        object.column.type = type.value;
+        object.type = type.value;
         var size = column.getElementsByClassName("size")[0];
-        object.column.size = size.value;
-        if (object.column.size !== '')
-            object.column.size = parseInt(object.column.size);
+        object.size = size.value;
+        if (object.size !== '')
+            object.size = parseInt(object.size);
         else
-            object.column.size = 0;
+            object.size = 0;
         var nullable = column.getElementsByClassName("nullable")[0];
-        object.column.nullable = nullable.checked;
+        object.nullable = nullable.checked;
         var pk = column.getElementsByClassName("pk")[0];
-        object.column.pk = pk.checked;
-        result.push(object);
+        object.pk = pk.checked;
+        result.column.push(object);
     }
     return result;
 }

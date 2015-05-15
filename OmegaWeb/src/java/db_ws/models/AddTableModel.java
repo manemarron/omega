@@ -7,8 +7,6 @@ package db_ws.models;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -33,6 +31,7 @@ public class AddTableModel {
     public List<Column> getColumns() {
         return columns;
     }
+    
     @XmlElementWrapper(name="columns")
     @XmlElement(name="column")
     public void setColumns(List<Column> columns) {
@@ -62,7 +61,7 @@ public class AddTableModel {
     public ArrayList<String> getNulls(){
         ArrayList<String> nulls = new ArrayList();
         for(int i=0;i<columns.size();i++){
-            nulls.add(columns.get(i).isNullable()?"NULL":"NOT NULL");
+            nulls.add(columns.get(i).isNullable()?"":"NOT NULL");
         }
         return nulls;
     }
