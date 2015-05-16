@@ -211,6 +211,7 @@ public class DatabaseWSClient {
     }
     
     @POST
+    @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     @Path("select")
     public String select(SelectRequestModel params, @Context HttpServletRequest request){

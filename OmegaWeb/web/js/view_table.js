@@ -23,6 +23,7 @@ function getRows(table_name) {
     }
     AJAX_call("POST", "/db/api/select", object,
             function (response) {
+                document.valores_tabla = [];
                 console.log(response);
                 var rows = response["SelectResponseModel"].row;
                 if (rows === "") {
@@ -32,18 +33,24 @@ function getRows(table_name) {
                         var column = rows[i].column;
                         var tr = document.createElement("tr");
                         if (column instanceof Array) {
+                            var arr = [];
                             for (var j = 0; j < column.length; j++) {
-                                var td = document.createElement("td");
-                                td.innerHTML = column[j];
-                                tr.appendChild(td);
+                                arr.push(column[j]);
+                                //var td = document.createElement("td");
+                                //td.innerHTML = column[j];
+                                //tr.appendChild(td);
                             }
+                            document.valores_tabla.push(arr);
 
                         } else {
-                            var td = document.createElement("td");
-                            td.innerHTML = column;
-                            tr.appendChild(td);
+                            var arr = [];
+                            arr.push(column);
+                            document.valores_tabla.push(arr);
+//                            var td = document.createElement("td");
+//                            td.innerHTML = column;
+//                            tr.appendChild(td);
                         }
-                        document.getElementById("results").appendChild(tr);
+                        //document.getElementById("results").appendChild(tr);
                     }
 
                 }
@@ -52,22 +59,38 @@ function getRows(table_name) {
                         var column = rows.column;
                         var tr = document.createElement("tr");
                         if (column instanceof Array) {
+                            var arr = [];
                             for (var j = 0; j < column.length; j++) {
-                                var td = document.createElement("td");
-                                td.innerHTML = column[j];
-                                tr.appendChild(td);
+                                arr.push(column[j]);
+//                                var td = document.createElement("td");
+//                                td.innerHTML = column[j];
+//                                tr.appendChild(td);
                             }
+                            document.valores_tabla.push(arr);
 
                         } else {
-                            var td = document.createElement("td");
-                            td.innerHTML = column;
-                            tr.appendChild(td);
+                            var arr = [];
+                            arr.push(column);
+                            document.valores_tabla.push(arr);
+//                            var td = document.createElement("td");
+//                            td.innerHTML = column;
+//                            tr.appendChild(td);
                         }
-                        document.getElementById("results").appendChild(tr);
+//                        document.getElementById("results").appendChild(tr);
+
                     }
                 }
+                setCurrentResult();
+                console.log(document.valores_tabla);
             }
     );
+}
+function setCurrentResult() {
+    var tr = document.getElementById("resultsTr");
+    var tds = tr.getElementsByTagName("td");
+    for (var k = 0; k < document.valores_tabla[document.indice].length; k++) {
+        tds[k].innerHTML = document.valores_tabla[document.indice][k];
+    }
 }
 
 function validateAddRow(table_name) {
@@ -79,6 +102,8 @@ function validateAddRow(table_name) {
     };
     AJAX_call("POST", "/db/api/addRow", object,
             function () {
+                document.indice=document.valores_tabla.length;
+                getRows(table_name);
                 resetForm();
             }
     );

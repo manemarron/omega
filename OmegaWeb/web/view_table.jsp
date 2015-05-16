@@ -24,7 +24,7 @@
         <%@include file="jsp/styles_scripts.jsp" %>
         <script type="text/javascript" src="js/view_table.js" ></script>
     </head>
-    <body onload="getRows('<%= table_name %>')">
+    <body onload="document.indice = 0;getRows('<%= table_name %>');">
         <%@include file="jsp/loading.jsp" %>
         <%@include file="jsp/header.jsp" %>  
         <article id ="table">
@@ -44,6 +44,8 @@
                 </tr>
                 <% } %>
             </table>
+            <br/>
+            <br/>
             Agregar registro:
             <script>document.columns = [];</script>
             <form onsubmit="return validateAddRow('<%= table_name %>');" action="#" method="POST">
@@ -58,6 +60,8 @@
             <% } %>
             <input type="submit" value="Agregar" />
             </form>
+            <br/>
+            <br/>
             <section>
                 <table id="results">
                     <tr>
@@ -66,7 +70,17 @@
                 <th><%= name %></th>
             <% } %>
                 </tr>
+                <tr id="resultsTr">
+                  <% for(ArrayList<String> column : columns){ 
+                String name = column.get(0); %>
+                <td></td>
+            <% } %>  
+                </tr>
                 </table>
+                <button onclick="document.indice=0;setCurrentResult();">First</button>
+                <button onclick="document.indice = document.indice===0 ? document.indice : document.indice-1;setCurrentResult();">Previous</button>
+                <button onclick="document.indice = document.indice===document.valores_tabla.length-1 ? document.indice : document.indice+1;setCurrentResult();">Next</button>
+                <button onclick="document.indice=document.valores_tabla.length-1;setCurrentResult();">Last</button>
             </section>
         </article>
     </body>
